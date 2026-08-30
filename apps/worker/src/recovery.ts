@@ -1,6 +1,6 @@
 import type { PgBoss } from "pg-boss";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { db, promptRuns, prompts, promptTargets } from "@openaeo/db";
+import { db, promptRuns, prompts, promptTargets } from "@aeokit/db";
 import type { RunPromptData, RunTargetData } from "./process-prompt";
 
 export async function recoverStaleRuns(

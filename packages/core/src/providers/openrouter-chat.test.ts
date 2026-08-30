@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { runOpenRouterChat } from "./openrouter";
+import { runOpenRouterChat } from "./openrouter.js";
 
 afterEach(() => vi.unstubAllGlobals());
 

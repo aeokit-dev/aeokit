@@ -4,14 +4,14 @@ import type {
   ProviderModelOption,
   ProviderRunResult,
   RunOptions,
-} from "../types";
+} from "../types.js";
 import {
   apiError,
   dedupeCitations,
   domainFromUrl,
   resolveCitationUrl,
   stripDataUriImages,
-} from "./shared";
+} from "./shared.js";
 
 const scraperEndpoint = "https://api.brightdata.com/datasets/v3/scrape";
 const apiEndpoint = "https://api.brightdata.com";

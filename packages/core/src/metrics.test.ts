@@ -6,7 +6,7 @@ import {
   shareOfVoice,
   visibilityScore,
   visibilityTrend,
-} from "./metrics";
+} from "./metrics.js";
 
 const runs = [
   {

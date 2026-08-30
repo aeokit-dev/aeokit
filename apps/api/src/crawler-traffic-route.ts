@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   publicCrawlerTrafficError,
   type CrawlerTrafficData,
-} from "@openaeo/cloudflare-analytics";
+} from "@aeokit/cloudflare-analytics";
 
 interface CrawlerTrafficRouteDependencies {
   findProject: (

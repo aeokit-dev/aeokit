@@ -1,5 +1,5 @@
 import { PgBoss } from "pg-boss";
-import { closeDatabase } from "@openaeo/db";
+import { closeDatabase } from "@aeokit/db";
 import { processPromptJobs, providerMaxAttempts } from "./process-prompt";
 import { createScheduleHandler } from "./schedule";
 import {

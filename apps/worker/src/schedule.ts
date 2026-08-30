@@ -1,6 +1,6 @@
 import type { Job, PgBoss } from "pg-boss";
 import { eq, sql } from "drizzle-orm";
-import { db, promptRuns, prompts } from "@openaeo/db";
+import { db, promptRuns, prompts } from "@aeokit/db";
 
 export interface ScheduleData {
   source?: string;

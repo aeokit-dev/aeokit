@@ -1,14 +1,14 @@
-import type { AiChatConversationMessage } from "../ai-chat";
-import type { AiChatUiAction, AiChatUiContext } from "../ai-chat";
-import { aiChatAppPages, validateAiChatUiActions } from "../ai-chat";
+import type { AiChatConversationMessage } from "../ai-chat.js";
+import type { AiChatUiAction, AiChatUiContext } from "../ai-chat.js";
+import { aiChatAppPages, validateAiChatUiActions } from "../ai-chat.js";
 import type {
   CitationResult,
   ProviderAdapter,
   ProviderEnvironment,
   ProviderRunResult,
   RunOptions,
-} from "../types";
-import { apiError, dedupeCitations, domainFromUrl } from "./shared";
+} from "../types.js";
+import { apiError, dedupeCitations, domainFromUrl } from "./shared.js";
 
 interface OpenRouterResponse {
   model?: string;

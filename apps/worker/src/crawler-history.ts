@@ -2,8 +2,8 @@ import {
   CloudflareCrawlerTrafficClient,
   syncCrawlerTrafficHistory,
   type CrawlerTrafficHistoryStore,
-} from "@openaeo/cloudflare-analytics";
-import { crawlerTrafficDaily, db, projects } from "@openaeo/db";
+} from "@aeokit/cloudflare-analytics";
+import { crawlerTrafficDaily, db, projects } from "@aeokit/db";
 import { and, inArray } from "drizzle-orm";
 
 const crawlerTrafficClient = new CloudflareCrawlerTrafficClient();

@@ -1,5 +1,5 @@
-import { metricSummary, providerCoverage } from "./metrics";
-import { compareSurfaces, surfaceKey, uniqueSurfaces } from "./surfaces";
+import { metricSummary, providerCoverage } from "./metrics.js";
+import { compareSurfaces, surfaceKey, uniqueSurfaces } from "./surfaces.js";
 export type AiChatRole = "user" | "assistant";
 
 export interface AiChatConversationMessage {

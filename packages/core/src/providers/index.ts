@@ -2,12 +2,12 @@ import type {
   ProviderAdapter,
   ProviderEnvironment,
   ProviderId,
-} from "../types";
-import { createAnthropicProvider } from "./anthropic";
-import { createBrightDataProvider } from "./brightdata";
-import { createDataForSeoProvider } from "./dataforseo";
-import { createOpenAIProvider } from "./openai";
-import { createOpenRouterProvider } from "./openrouter";
+} from "../types.js";
+import { createAnthropicProvider } from "./anthropic.js";
+import { createBrightDataProvider } from "./brightdata.js";
+import { createDataForSeoProvider } from "./dataforseo.js";
+import { createOpenAIProvider } from "./openai.js";
+import { createOpenRouterProvider } from "./openrouter.js";
 
 export function createProviderRegistry(
   env: ProviderEnvironment = process.env,
@@ -22,7 +22,7 @@ export function createProviderRegistry(
   return new Map(providers.map((provider) => [provider.id, provider]));
 }
 
-export { createAnthropicProvider } from "./anthropic";
+export { createAnthropicProvider } from "./anthropic.js";
 export {
   brightDataDefaultMaxWaitMs,
   brightDataModelOptions,
@@ -31,19 +31,19 @@ export {
   createBrightDataProvider,
   isBrightDataTarget,
   type BrightDataTarget,
-} from "./brightdata";
+} from "./brightdata.js";
 export {
   createDataForSeoProvider,
   dataForSeoModelOptions,
   dataForSeoPromptLimit,
   isDataForSeoTarget,
   type DataForSeoTarget,
-} from "./dataforseo";
-export { createOpenAIProvider } from "./openai";
+} from "./dataforseo.js";
+export { createOpenAIProvider } from "./openai.js";
 export {
   configuredAiChatBackends,
   createOpenRouterProvider,
   runOpenRouterChat,
-} from "./openrouter";
-export type { AiChatBackend } from "./openrouter";
-export { resolveCitationUrl } from "./shared";
+} from "./openrouter.js";
+export type { AiChatBackend } from "./openrouter.js";
+export { resolveCitationUrl } from "./shared.js";

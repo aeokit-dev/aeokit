@@ -2,7 +2,7 @@ import {
   classifyCitation,
   normalizeDomain,
   resolveCitationUrl,
-} from "@openaeo/core";
+} from "@aeokit/core";
 import {
   citations,
   competitors,
@@ -10,7 +10,7 @@ import {
   projects,
   promptRuns,
   prompts,
-} from "@openaeo/db";
+} from "@aeokit/db";
 import { and, eq, inArray, like } from "drizzle-orm";
 
 export async function repairPostgresGoogleRedirectCitations(

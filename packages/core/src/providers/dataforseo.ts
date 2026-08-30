@@ -4,8 +4,8 @@ import type {
   ProviderModelOption,
   ProviderRunResult,
   RunOptions,
-} from "../types";
-import { apiError, dedupeCitations, domainFromUrl } from "./shared";
+} from "../types.js";
+import { apiError, dedupeCitations, domainFromUrl } from "./shared.js";
 
 const googleAiOverviewEndpoint =
   "https://api.dataforseo.com/v3/serp/google/organic/live/advanced";

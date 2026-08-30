@@ -25,13 +25,13 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "dotenv -e .env -- concurrently -n api,worker -c green,magenta \"pnpm --filter @openaeo/api dev\" \"pnpm --filter @openaeo/worker dev\"",
-    "start": "dotenv -e .env -- concurrently -n api,worker -c green,magenta \"pnpm --filter @openaeo/api start\" \"pnpm --filter @openaeo/worker start\"",
+    "dev": "dotenv -e .env -- concurrently -n api,worker -c green,magenta \"pnpm --filter @aeokit/api dev\" \"pnpm --filter @aeokit/worker dev\"",
+    "start": "dotenv -e .env -- concurrently -n api,worker -c green,magenta \"pnpm --filter @aeokit/api start\" \"pnpm --filter @aeokit/worker start\"",
     "build": "pnpm -r build",
     "typecheck": "tsc -p tsconfig.scripts.json && pnpm -r typecheck",
     "test": "vitest run scripts/*.test.ts && pnpm -r --if-present test",
-    "db:migrate": "pnpm --filter @openaeo/db migrate",
-    "db:seed": "pnpm --filter @openaeo/db seed",
+    "db:migrate": "pnpm --filter @aeokit/db migrate",
+    "db:seed": "pnpm --filter @aeokit/db seed",
     "env:link": "sh scripts/link-env.sh",
     "hooks:install": "sh scripts/install-git-hooks.sh",
     "format": "prettier --write .",
@@ -47,5 +47,10 @@
     "tsx": "^4.20.5",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "author": ""
 }

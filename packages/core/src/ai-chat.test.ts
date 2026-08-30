@@ -4,7 +4,7 @@ import {
   buildAiChatMetrics,
   buildAiChatSystemPrompt,
   validateAiChatUiActions,
-} from "./ai-chat";
+} from "./ai-chat.js";
 
 const emptyContext = {
   project: {

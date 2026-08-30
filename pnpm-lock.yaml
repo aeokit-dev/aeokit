@@ -37,21 +37,24 @@ importers:
 
   apps/api:
     dependencies:
+      "@aeokit/auth":
+        specifier: workspace:*
+        version: link:../../packages/auth
+      "@aeokit/cloudflare-analytics":
+        specifier: workspace:*
+        version: link:../../packages/cloudflare-analytics
+      "@aeokit/core":
+        specifier: workspace:*
+        version: link:../../packages/core
+      "@aeokit/db":
+        specifier: workspace:*
+        version: link:../../packages/db
       "@hono/node-server":
         specifier: ^1.19.1
         version: 1.19.17(hono@4.13.5)
       "@hono/zod-validator":
         specifier: ^0.7.6
         version: 0.7.6(hono@4.13.5)(zod@4.4.3)
-      "@openaeo/cloudflare-analytics":
-        specifier: workspace:*
-        version: link:../../packages/cloudflare-analytics
-      "@openaeo/core":
-        specifier: workspace:*
-        version: link:../../packages/core
-      "@openaeo/db":
-        specifier: workspace:*
-        version: link:../../packages/db
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@5.20260826.1)(kysely@0.29.5)(pg@8.23.0)(postgres@3.4.9)
@@ -78,15 +81,40 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.12)
 
+  apps/cli:
+    dependencies:
+      "@aeokit/auth":
+        specifier: workspace:*
+        version: link:../../packages/auth
+      "@modelcontextprotocol/server":
+        specifier: ^2.0.0
+        version: 2.0.0
+      zod:
+        specifier: ^4.1.12
+        version: 4.4.3
+    devDependencies:
+      "@types/node":
+        specifier: ^24.0.0
+        version: 24.13.3
+      tsx:
+        specifier: ^4.20.5
+        version: 4.23.12
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.12)
+
   apps/worker:
     dependencies:
-      "@openaeo/cloudflare-analytics":
+      "@aeokit/cloudflare-analytics":
         specifier: workspace:*
         version: link:../../packages/cloudflare-analytics
-      "@openaeo/core":
+      "@aeokit/core":
         specifier: workspace:*
         version: link:../../packages/core
-      "@openaeo/db":
+      "@aeokit/db":
         specifier: workspace:*
         version: link:../../packages/db
       drizzle-orm:
@@ -102,6 +130,15 @@ importers:
       tsx:
         specifier: ^4.20.5
         version: 4.23.12
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.12)
+
+  packages/auth:
+    devDependencies:
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -410,6 +447,20 @@ packages:
       {
         integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==,
       }
+
+  "@modelcontextprotocol/core@2.0.0":
+    resolution:
+      {
+        integrity: sha512-pJCEwGG7Lfr/+PQp9ZTwKXNeO5wzbfKL7H3MYpCorM4oFBoQrdjnBgEoqG+RjhsvS1FKrDbKux+M1HhlnGWqcA==,
+      }
+    engines: { node: ">=20" }
+
+  "@modelcontextprotocol/server@2.0.0":
+    resolution:
+      {
+        integrity: sha512-YhHWdHfpFMQfd0prsEnxKeS3Qz3ytIGmsS0sth4KDjnacIT7hxk6hXHkJ9KysxlkvTM+WZAtQbbcUhdoP4Hvtw==,
+      }
+    engines: { node: ">=20" }
 
   "@napi-rs/lzma-linux-x64-gnu@1.5.1":
     resolution:
@@ -1845,6 +1896,15 @@ snapshots:
       zod: 4.4.3
 
   "@jridgewell/sourcemap-codec@1.5.5": {}
+
+  "@modelcontextprotocol/core@2.0.0":
+    dependencies:
+      zod: 4.4.3
+
+  "@modelcontextprotocol/server@2.0.0":
+    dependencies:
+      "@modelcontextprotocol/core": 2.0.0
+      zod: 4.4.3
 
   "@napi-rs/lzma-linux-x64-gnu@1.5.1":
     optional: true

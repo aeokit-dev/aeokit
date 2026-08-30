@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { CloudflareCrawlerTrafficError } from "@openaeo/cloudflare-analytics";
+import { CloudflareCrawlerTrafficError } from "@aeokit/cloudflare-analytics";
 import { createCrawlerTrafficRoutes } from "./crawler-traffic-route";
 
 const projectId = "8b943d6f-6e42-4a10-b50d-627f6ad1d2d9";

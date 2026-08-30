@@ -1,4 +1,4 @@
-import type { CitationResult } from "../types";
+import type { CitationResult } from "../types.js";
 
 export function domainFromUrl(url: string): string {
   try {

@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server";
 import { stopQueue } from "./queue";
-import { closeDatabase } from "@openaeo/db";
+import { closeDatabase } from "@aeokit/db";
 import { createRuntimeApp } from "./runtime";
 
 const app = createRuntimeApp();
