@@ -31,6 +31,18 @@ curl http://127.0.0.1:3000/api/health
 curl http://127.0.0.1:3000/api/projects
 ```
 
+In a second terminal, verify the installed public CLI against the local
+runtime—no repository checkout or login is required:
+
+```sh
+npx --yes @aeokit/cli@0.1.0 health
+npx --yes @aeokit/cli@0.1.0 projects
+```
+
+Continue with the [five-minute quickstart](docs/QUICKSTART.md) to create a
+project, connect JavaScript or MCP, and optionally run a provider-backed
+analysis.
+
 PostgreSQL is also loopback-only at `127.0.0.1:5433`. Do not broaden either
 binding without an authenticated access boundary.
 
@@ -50,20 +62,21 @@ unless `API_PORT` overrides it.
 
 ## CLI, MCP, and API-key mode
 
-The CLI and MCP stdio server use the same runtime URL and bearer key:
+The published CLI and MCP stdio server use the same runtime URL and bearer
+key:
 
 ```sh
-AEOKIT_URL=http://127.0.0.1:3000 pnpm --filter @aeokit/cli start health
+AEOKIT_URL=http://127.0.0.1:3000 npx --yes @aeokit/cli@0.1.0 health
 AEOKIT_URL=https://cloud.aeokit.dev \
 AEOKIT_API_KEY=aeo_live_... \
-pnpm --filter @aeokit/cli start projects
+npx --yes @aeokit/cli@0.1.0 projects
 ```
 
 Local mode remains unauthenticated. To protect a networked self-hosted runtime,
 generate a key, keep the displayed secret, and configure only its hash:
 
 ```sh
-pnpm --filter @aeokit/cli start key create
+npx --yes @aeokit/cli@0.1.0 key create
 # Set AEOKIT_AUTH_MODE=api-key and AEOKIT_API_KEY_HASHES=<returned hash>
 ```
 
@@ -72,7 +85,7 @@ Start the stdio MCP server with the same environment:
 ```sh
 AEOKIT_URL=https://cloud.aeokit.dev \
 AEOKIT_API_KEY=aeo_live_... \
-pnpm --filter @aeokit/cli start mcp
+npx --yes @aeokit/cli@0.1.0 mcp
 ```
 
 It exposes health, project listing, and read-only API tools. Claude, Codex, and

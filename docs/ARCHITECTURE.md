@@ -48,3 +48,18 @@ agents ──┘
 Workflow/Cron, Clerk identity, tenant isolation, and API-key management. The
 dependency direction is one-way: this runtime never imports the hosted control
 plane.
+
+## Ecosystem boundaries
+
+- `aeokit` is the public runtime, API contract, CLI, JavaScript client, and MCP
+  server.
+- `aeokit-cloud` is the hosted control plane and Cloudflare adapter. It imports
+  a pinned public runtime revision.
+- `aeokit-app` and `aeokit-agent` are clients. They communicate through the
+  HTTP contract and do not own runtime logic.
+- CMS, commerce, CI, and agent integrations are additional clients of the same
+  API rather than separate implementations of AEO analysis.
+
+This keeps authentication attached to the runtime boundary: local loopback is
+login-free, self-hosted instances may opt into hashed API keys, and the hosted
+control plane mints organization-bound keys after user login.
