@@ -5,6 +5,30 @@ It stores auditable AI answers, citations, mentions, competitors, visibility
 metrics, and opportunities behind a JSON API that can be used by apps, agents,
 CLI tools, MCP clients, and integrations.
 
+## Why answer-engine optimization is different
+
+SEO competes to rank a page. AEO competes to make useful evidence available to
+an AI-generated answer.
+
+An answer engine with live web retrieval can cite a newly published source as
+soon as it discovers that source and finds it relevant. The site does not
+necessarily have to build months of ranking history first. Inclusion is never
+guaranteed, and answer engines that rely on conventional search indexes still
+depend on sound technical SEO, but the feedback loop can be much shorter for
+original facts, research, product information, and narrowly focused questions.
+
+Aeokit makes that feedback loop observable. Use scheduled prompt runs,
+citations, mentions, and crawler traffic to follow a source from publication to
+its first appearance in an AI answer—and keep the evidence behind every
+result.
+
+```text
+publish -> AI crawler visit -> first mention -> first citation
+```
+
+This "zero to cited" workflow is a practical way to compare AI visibility with
+traditional search visibility without treating either one as guaranteed.
+
 The runtime is licensed under the GNU Affero General Public License v3.0.
 
 ## Local quick start
