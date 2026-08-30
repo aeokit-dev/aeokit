@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openaeo
+      POSTGRES_PASSWORD: openaeo
+      POSTGRES_DB: openaeo
+    volumes:
+      - openaeo_postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openaeo -d openaeo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build: .
+    environment:
+      DATABASE_URL: postgres://openaeo:openaeo@postgres:5432/openaeo
+    command: ["pnpm", "db:migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://openaeo:openaeo@postgres:5432/openaeo
+      API_PORT: 8787
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-self-hosted}
+      SHOW_PROVIDER_COSTS: ${SHOW_PROVIDER_COSTS:-true}
+    ports:
+      - "127.0.0.1:3000:8787"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:8787/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgres://openaeo:openaeo@postgres:5432/openaeo
+    # Run Node directly so SIGTERM reaches the worker heartbeat/shutdown hooks.
+    command: ["node", "--import", "tsx", "apps/worker/src/index.ts"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  openaeo_postgres:

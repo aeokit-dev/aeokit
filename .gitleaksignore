@@ -1,0 +1,4 @@
+# These exact fingerprints are one non-secret test fixture in two
+# pre-publication commits. The current fixture no longer resembles a key.
+95beea662f2cbf9db85a2a288346b8d1aaaf61db:apps/cloudflare/src/clerk-auth.test.ts:stripe-access-token:19
+e02fc8bc7abfd951790f761e0a45e18066b4aaf3:apps/cloudflare/src/clerk-auth.test.ts:stripe-access-token:19

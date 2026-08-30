@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage questions and community
+    url: https://github.com/aeokit-dev/aeokit/discussions
+    about: Ask for setup help or discuss ideas with the community.
+  - name: Private security report
+    url: https://github.com/aeokit-dev/aeokit/security/advisories/new
+    about: Report suspected vulnerabilities privately, not in an issue.

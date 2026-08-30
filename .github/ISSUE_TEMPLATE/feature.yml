@@ -1,0 +1,28 @@
+name: Feature request
+description: Propose a focused improvement to aeokit.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    attributes:
+      label: Problem
+      description: What is difficult today, and who experiences it?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Proposed outcome
+      description: Describe the behavior or result rather than a large implementation plan.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Alternatives considered
+
+  - type: checkboxes
+    attributes:
+      label: Contribution
+      options:
+        - label: I may be able to implement this change.

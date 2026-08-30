@@ -1,0 +1,51 @@
+{
+  "name": "aeokit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source AI visibility tracking with auditable answers, citations, and share-of-voice metrics.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "homepage": "https://aeokit.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aeokit-dev/aeokit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aeokit-dev/aeokit/issues"
+  },
+  "keywords": [
+    "aeo",
+    "ai-visibility",
+    "answer-engine-optimization",
+    "citations",
+    "self-hosted"
+  ],
+  "packageManager": "pnpm@10.30.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "dotenv -e .env -- concurrently -n api,worker -c green,magenta \"pnpm --filter @openaeo/api dev\" \"pnpm --filter @openaeo/worker dev\"",
+    "start": "dotenv -e .env -- concurrently -n api,worker -c green,magenta \"pnpm --filter @openaeo/api start\" \"pnpm --filter @openaeo/worker start\"",
+    "build": "pnpm -r build",
+    "typecheck": "tsc -p tsconfig.scripts.json && pnpm -r typecheck",
+    "test": "vitest run scripts/*.test.ts && pnpm -r --if-present test",
+    "db:migrate": "pnpm --filter @openaeo/db migrate",
+    "db:seed": "pnpm --filter @openaeo/db seed",
+    "env:link": "sh scripts/link-env.sh",
+    "hooks:install": "sh scripts/install-git-hooks.sh",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "concurrently": "^9.2.1",
+    "dotenv-cli": "^10.0.0",
+    "playwright": "^1.62.1",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

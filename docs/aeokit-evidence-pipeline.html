@@ -1,0 +1,2265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A visual explanation of aeokit's event-driven evidence pipeline."
+    />
+    <title>aeokit — The evidence pipeline, visually explained</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #152133;
+        --muted: #667085;
+        --line: #d9e0e9;
+        --paper: #ffffff;
+        --canvas: #f4f7fb;
+        --navy: #1e3152;
+        --navy-2: #29466f;
+        --blue: #556de8;
+        --blue-soft: #eef1ff;
+        --green: #278d6a;
+        --green-soft: #e8f7f1;
+        --amber: #d98b29;
+        --amber-soft: #fff4dd;
+        --red: #ca4d53;
+        --red-soft: #fff0f1;
+        --purple: #8b5bd6;
+        --purple-soft: #f4edff;
+        --shadow: 0 20px 55px rgba(30, 49, 82, 0.09);
+        --radius: 22px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(
+            circle at 10% 0%,
+            rgba(85, 109, 232, 0.1),
+            transparent 27rem
+          ),
+          radial-gradient(
+            circle at 98% 24%,
+            rgba(39, 141, 106, 0.08),
+            transparent 24rem
+          ),
+          var(--canvas);
+        color: var(--ink);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      button,
+      a {
+        font: inherit;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button:focus-visible,
+      a:focus-visible {
+        outline: 3px solid rgba(85, 109, 232, 0.35);
+        outline-offset: 3px;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        z-index: 30;
+        top: 0;
+        border-bottom: 1px solid rgba(217, 224, 233, 0.8);
+        background: rgba(244, 247, 251, 0.86);
+        backdrop-filter: blur(18px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 68px;
+        gap: 20px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 11px;
+        text-decoration: none;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 10px;
+        background: var(--navy);
+        color: white;
+        font-size: 13px;
+        letter-spacing: -0.08em;
+      }
+
+      .brand-copy small {
+        display: block;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .topnav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .topnav a {
+        border-radius: 10px;
+        color: #526073;
+        padding: 8px 11px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+      }
+
+      .topnav a:hover {
+        background: white;
+        color: var(--ink);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        align-items: center;
+        gap: 64px;
+        min-height: 610px;
+        padding: 76px 0 64px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 20px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 23px;
+        height: 2px;
+        background: currentColor;
+        content: "";
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 720px;
+        margin-bottom: 22px;
+        font-size: clamp(44px, 6vw, 76px);
+        font-weight: 800;
+        letter-spacing: -0.065em;
+        line-height: 0.98;
+      }
+
+      h1 span {
+        color: var(--blue);
+      }
+
+      .hero-copy > p {
+        max-width: 650px;
+        margin-bottom: 30px;
+        color: #536176;
+        font-size: 19px;
+        line-height: 1.65;
+      }
+
+      .plain-language {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        max-width: 620px;
+        border-left: 3px solid var(--green);
+        padding: 4px 0 4px 17px;
+        color: #33435a;
+      }
+
+      .plain-language strong {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--green);
+        font-size: 12px;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .hero-machine {
+        position: relative;
+        min-height: 420px;
+        border: 1px solid rgba(255, 255, 255, 0.34);
+        border-radius: 32px;
+        background: var(--navy);
+        box-shadow: var(--shadow);
+        color: white;
+        overflow: hidden;
+      }
+
+      .hero-machine::before {
+        position: absolute;
+        width: 280px;
+        height: 280px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        top: -140px;
+        right: -100px;
+        content: "";
+      }
+
+      .machine-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 24px 26px 18px;
+        color: rgba(255, 255, 255, 0.58);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .live-dot {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .live-dot::before {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #68dfa5;
+        box-shadow: 0 0 0 5px rgba(104, 223, 165, 0.12);
+        content: "";
+      }
+
+      .machine-flow {
+        display: grid;
+        padding: 8px 26px 28px;
+        gap: 8px;
+      }
+
+      .machine-row {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        align-items: center;
+        gap: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.055);
+        padding: 13px;
+      }
+
+      .machine-row:nth-child(5) {
+        border-color: rgba(104, 223, 165, 0.34);
+        background: rgba(104, 223, 165, 0.11);
+      }
+
+      .machine-icon {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #aab7ff;
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: -0.03em;
+      }
+
+      .machine-row:nth-child(5) .machine-icon {
+        background: rgba(104, 223, 165, 0.15);
+        color: #8ff0bd;
+      }
+
+      .machine-row b {
+        display: block;
+        font-size: 13px;
+      }
+
+      .machine-row small {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .machine-arrow {
+        color: rgba(255, 255, 255, 0.32);
+        font-size: 18px;
+      }
+
+      .section {
+        scroll-margin-top: 90px;
+        padding: 82px 0;
+      }
+
+      .section-kicker {
+        margin-bottom: 10px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 30px;
+        margin-bottom: 34px;
+      }
+
+      .section-head h2 {
+        max-width: 720px;
+        margin-bottom: 0;
+        font-size: clamp(31px, 4vw, 48px);
+        letter-spacing: -0.045em;
+        line-height: 1.06;
+      }
+
+      .section-head p {
+        max-width: 420px;
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .mental-model {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .model-card {
+        position: relative;
+        min-height: 244px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--paper);
+        padding: 25px;
+        overflow: hidden;
+      }
+
+      .model-card::after {
+        position: absolute;
+        right: -24px;
+        bottom: -42px;
+        color: rgba(30, 49, 82, 0.045);
+        content: attr(data-step);
+        font-size: 138px;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .model-index {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        margin-bottom: 33px;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--blue-soft);
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 850;
+      }
+
+      .model-card:nth-child(2) .model-index {
+        background: var(--amber-soft);
+        color: var(--amber);
+      }
+
+      .model-card:nth-child(3) .model-index {
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .model-card h3 {
+        margin-bottom: 8px;
+        font-size: 20px;
+        letter-spacing: -0.025em;
+      }
+
+      .model-card p {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .pipeline-shell {
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+        padding: 28px;
+      }
+
+      .pipeline-legend {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 28px;
+      }
+
+      .pipeline-legend > strong {
+        font-size: 13px;
+        letter-spacing: 0.01em;
+      }
+
+      .legend-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .legend-swatch {
+        width: 9px;
+        height: 9px;
+        border-radius: 3px;
+        background: var(--blue);
+      }
+
+      .legend-swatch.rules {
+        background: var(--amber);
+      }
+
+      .legend-swatch.outcome {
+        background: var(--green);
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: 0.85fr 36px 1fr 36px 1.1fr 36px 0.95fr;
+        align-items: stretch;
+        gap: 0;
+      }
+
+      .pipe-stage {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fbfcfe;
+        padding: 20px;
+      }
+
+      .pipe-stage.rules-stage {
+        border-color: #efd7b1;
+        background: #fffaf2;
+      }
+
+      .pipe-stage.outcome-stage {
+        border-color: #b9e1d1;
+        background: #f3fbf8;
+      }
+
+      .pipe-number {
+        margin-bottom: 22px;
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .rules-stage .pipe-number {
+        color: var(--amber);
+      }
+
+      .outcome-stage .pipe-number {
+        color: var(--green);
+      }
+
+      .pipe-stage h3 {
+        margin-bottom: 7px;
+        font-size: 18px;
+        letter-spacing: -0.025em;
+      }
+
+      .pipe-stage > p {
+        margin-bottom: 18px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .pipe-list {
+        display: grid;
+        margin-top: auto;
+        gap: 7px;
+      }
+
+      .pipe-chip {
+        border-radius: 9px;
+        background: white;
+        box-shadow: inset 0 0 0 1px rgba(217, 224, 233, 0.9);
+        padding: 8px 10px;
+        color: #47556a;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .pipe-arrow {
+        display: grid;
+        place-items: center;
+        color: #9aa7b8;
+        font-size: 22px;
+      }
+
+      .important-note {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-top: 22px;
+        border-radius: 15px;
+        background: var(--navy);
+        padding: 16px 18px;
+        color: white;
+      }
+
+      .important-note b {
+        color: #94f0c0;
+      }
+
+      .note-badge {
+        display: grid;
+        width: 33px;
+        height: 33px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        font-weight: 850;
+      }
+
+      .walkthrough {
+        display: grid;
+        grid-template-columns: 310px 1fr;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .step-nav {
+        border-right: 1px solid var(--line);
+        background: #f8fafc;
+        padding: 20px;
+      }
+
+      .step-nav h3 {
+        margin: 7px 8px 18px;
+        font-size: 15px;
+      }
+
+      .step-button {
+        display: grid;
+        width: 100%;
+        grid-template-columns: 34px 1fr;
+        align-items: center;
+        gap: 11px;
+        border: 0;
+        border-radius: 13px;
+        background: transparent;
+        padding: 10px;
+        color: #6a7688;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .step-button:hover {
+        background: white;
+      }
+
+      .step-button[aria-selected="true"] {
+        background: var(--navy);
+        box-shadow: 0 9px 24px rgba(30, 49, 82, 0.17);
+        color: white;
+      }
+
+      .step-button-number {
+        display: grid;
+        width: 31px;
+        height: 31px;
+        place-items: center;
+        border: 1px solid currentColor;
+        border-radius: 9px;
+        font-size: 11px;
+        font-weight: 850;
+        opacity: 0.8;
+      }
+
+      .step-button b {
+        display: block;
+        font-size: 13px;
+      }
+
+      .step-button small {
+        display: block;
+        font-size: 10px;
+        opacity: 0.64;
+      }
+
+      .step-panel {
+        min-height: 440px;
+        padding: 42px 46px;
+      }
+
+      .step-panel[hidden] {
+        display: none;
+      }
+
+      .step-context {
+        margin-bottom: 9px;
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .step-panel h3 {
+        margin-bottom: 12px;
+        font-size: clamp(27px, 3vw, 38px);
+        letter-spacing: -0.04em;
+      }
+
+      .step-panel > p {
+        max-width: 660px;
+        color: var(--muted);
+      }
+
+      .example-card {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 18px;
+        margin-top: 30px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: #f9fbfd;
+        padding: 20px;
+      }
+
+      .example-side small {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .example-side b {
+        font-size: 14px;
+      }
+
+      .example-arrow {
+        color: var(--blue);
+        font-size: 22px;
+      }
+
+      .storage-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 28px;
+      }
+
+      .storage-card {
+        min-height: 250px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--paper);
+        padding: 26px;
+      }
+
+      .storage-card.raw {
+        background: var(--navy);
+        color: white;
+      }
+
+      .storage-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 26px;
+      }
+
+      .storage-label b {
+        font-size: 28px;
+        letter-spacing: -0.04em;
+      }
+
+      .storage-kind {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 5px 10px;
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .raw .storage-kind {
+        border-color: rgba(255, 255, 255, 0.16);
+        color: rgba(255, 255, 255, 0.58);
+      }
+
+      .storage-card p {
+        color: var(--muted);
+      }
+
+      .raw p {
+        color: rgba(255, 255, 255, 0.62);
+      }
+
+      .field-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+
+      .field-cloud span {
+        border-radius: 7px;
+        background: var(--blue-soft);
+        padding: 6px 8px;
+        color: #465ac4;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 10px;
+      }
+
+      .raw .field-cloud span {
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      .rule-board {
+        display: grid;
+        grid-template-columns: 1fr 60px 1fr;
+        gap: 12px;
+      }
+
+      .rule-column {
+        display: grid;
+        gap: 11px;
+      }
+
+      .rule-heading {
+        margin-bottom: 1px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .rule-card,
+      .opportunity-card {
+        display: flex;
+        min-height: 76px;
+        align-items: center;
+        gap: 13px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: var(--paper);
+        padding: 14px;
+      }
+
+      .rule-card b,
+      .opportunity-card b {
+        display: block;
+        font-size: 13px;
+      }
+
+      .rule-card small,
+      .opportunity-card small {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .rule-glyph {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 10px;
+        background: var(--amber-soft);
+        color: var(--amber);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .opportunity-card {
+        border-color: #c3e4d6;
+      }
+
+      .opportunity-card .rule-glyph {
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .rule-connectors {
+        display: grid;
+        grid-template-rows: 20px repeat(5, 76px);
+        gap: 11px;
+        color: #a0adbc;
+        font-size: 24px;
+        text-align: center;
+      }
+
+      .rule-connectors span {
+        display: grid;
+        place-items: center;
+      }
+
+      .scoring {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+
+      .factor {
+        position: relative;
+        min-height: 182px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper);
+        padding: 20px;
+      }
+
+      .factor:not(:last-child)::after {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        right: -21px;
+        display: grid;
+        width: 29px;
+        height: 29px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        background: var(--canvas);
+        color: var(--muted);
+        content: "×";
+        font-weight: 800;
+        transform: translateY(-50%);
+      }
+
+      .factor-number {
+        margin-bottom: 27px;
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 850;
+      }
+
+      .factor h3 {
+        margin-bottom: 7px;
+        font-size: 17px;
+      }
+
+      .factor p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .confidence-note {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 16px;
+        margin-top: 16px;
+        border: 1px solid #efd7b1;
+        border-radius: 16px;
+        background: var(--amber-soft);
+        padding: 14px 17px;
+        color: #7a5725;
+      }
+
+      .confidence-note strong {
+        font-size: 13px;
+      }
+
+      .confidence-note span {
+        font-size: 12px;
+      }
+
+      .funnel-loop-grid {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 18px;
+      }
+
+      .visual-panel {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--paper);
+        padding: 25px;
+      }
+
+      .visual-panel h3 {
+        margin-bottom: 5px;
+        font-size: 19px;
+      }
+
+      .visual-panel > p {
+        margin-bottom: 26px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .funnel {
+        display: grid;
+        justify-items: center;
+        gap: 9px;
+      }
+
+      .funnel-step {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 11px;
+        background: var(--blue-soft);
+        padding: 12px 15px;
+        color: #3f52b6;
+        font-size: 12px;
+        font-weight: 750;
+      }
+
+      .funnel-step:nth-child(1) {
+        width: 100%;
+      }
+
+      .funnel-step:nth-child(2) {
+        width: 82%;
+        background: #e8edff;
+      }
+
+      .funnel-step:nth-child(3) {
+        width: 63%;
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .funnel-step span {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 10px;
+      }
+
+      .loop {
+        display: grid;
+        grid-template-columns: 1fr 40px 1fr;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .loop-stack {
+        display: grid;
+        gap: 9px;
+      }
+
+      .loop-card {
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: #f9fbfd;
+        padding: 13px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .loop-card small {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .loop-arrows {
+        display: grid;
+        gap: 45px;
+        color: var(--blue);
+        font-size: 22px;
+        text-align: center;
+      }
+
+      .causation-warning {
+        margin-top: 18px;
+        border-left: 3px solid var(--amber);
+        padding-left: 14px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .reliability-track {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+      }
+
+      .reliability-step {
+        position: relative;
+        min-height: 172px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: var(--paper);
+        padding: 17px;
+      }
+
+      .reliability-step:not(:last-child)::after {
+        position: absolute;
+        z-index: 4;
+        top: 31px;
+        right: -16px;
+        width: 20px;
+        border-top: 2px dotted #aeb8c6;
+        content: "";
+      }
+
+      .reliability-state {
+        display: inline-flex;
+        margin-bottom: 25px;
+        border-radius: 7px;
+        background: var(--blue-soft);
+        padding: 4px 7px;
+        color: var(--blue);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .reliability-step:nth-child(4) .reliability-state {
+        background: var(--red-soft);
+        color: var(--red);
+      }
+
+      .reliability-step:nth-child(5) .reliability-state,
+      .reliability-step:nth-child(6) .reliability-state {
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .reliability-step b {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+
+      .reliability-step p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .idempotency {
+        margin-top: 17px;
+        border-radius: 13px;
+        background: var(--navy);
+        padding: 14px 17px;
+        color: rgba(255, 255, 255, 0.68);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+      }
+
+      .idempotency b {
+        color: #aebaff;
+      }
+
+      .mvp {
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: 46px;
+        border-radius: 30px;
+        background: var(--navy);
+        padding: 46px;
+        color: white;
+      }
+
+      .mvp-copy h2 {
+        margin-bottom: 18px;
+        font-size: clamp(34px, 4vw, 52px);
+        letter-spacing: -0.05em;
+        line-height: 1.02;
+      }
+
+      .mvp-copy p {
+        color: rgba(255, 255, 255, 0.62);
+      }
+
+      .mvp-copy strong {
+        color: #91efbd;
+      }
+
+      .mvp-kicker {
+        color: #91efbd;
+      }
+
+      .mvp-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .mvp-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-height: 68px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.055);
+        padding: 13px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .mvp-check {
+        display: grid;
+        width: 25px;
+        height: 25px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 50%;
+        background: rgba(104, 223, 165, 0.13);
+        color: #79e7ad;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .takeaway {
+        padding: 100px 0 118px;
+        text-align: center;
+      }
+
+      .takeaway .eyebrow {
+        justify-content: center;
+      }
+
+      .takeaway h2 {
+        max-width: 870px;
+        margin: 0 auto 20px;
+        font-size: clamp(38px, 5vw, 64px);
+        letter-spacing: -0.055em;
+        line-height: 1.03;
+      }
+
+      .takeaway p {
+        max-width: 700px;
+        margin: 0 auto;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .takeaway strong {
+        color: var(--ink);
+      }
+
+      .footer {
+        border-top: 1px solid var(--line);
+        padding: 26px 0 36px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .hero-machine {
+          animation: rise-in 700ms ease-out both;
+        }
+
+        @keyframes rise-in {
+          from {
+            opacity: 0;
+            transform: translateY(18px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      }
+
+      @media (max-width: 980px) {
+        .hero {
+          grid-template-columns: 1fr;
+          gap: 38px;
+          padding-top: 58px;
+        }
+
+        .hero-machine {
+          min-height: auto;
+        }
+
+        .pipeline {
+          grid-template-columns: 1fr;
+          gap: 9px;
+        }
+
+        .pipe-arrow {
+          height: 28px;
+          transform: rotate(90deg);
+        }
+
+        .walkthrough {
+          grid-template-columns: 255px 1fr;
+        }
+
+        .reliability-track {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .reliability-step:not(:last-child)::after {
+          display: none;
+        }
+
+        .mvp {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 740px) {
+        .page {
+          width: min(100% - 22px, 1180px);
+        }
+
+        .topnav {
+          display: none;
+        }
+
+        .hero {
+          min-height: auto;
+          padding: 48px 0 34px;
+        }
+
+        h1 {
+          font-size: 45px;
+        }
+
+        .section {
+          padding: 58px 0;
+        }
+
+        .section-head {
+          align-items: flex-start;
+          flex-direction: column;
+          margin-bottom: 25px;
+        }
+
+        .mental-model,
+        .storage-grid,
+        .funnel-loop-grid,
+        .mvp-list {
+          grid-template-columns: 1fr;
+        }
+
+        .pipeline-shell {
+          padding: 16px;
+        }
+
+        .walkthrough {
+          grid-template-columns: 1fr;
+        }
+
+        .step-nav {
+          display: flex;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+          overflow-x: auto;
+          padding: 12px;
+          scrollbar-width: thin;
+        }
+
+        .step-nav h3 {
+          display: none;
+        }
+
+        .step-button {
+          width: auto;
+          min-width: 112px;
+          grid-template-columns: 28px 1fr;
+          padding: 8px;
+        }
+
+        .step-button-number {
+          width: 27px;
+          height: 27px;
+        }
+
+        .step-panel {
+          min-height: 470px;
+          padding: 30px 22px;
+        }
+
+        .example-card {
+          grid-template-columns: 1fr;
+        }
+
+        .example-arrow {
+          transform: rotate(90deg);
+        }
+
+        .rule-board {
+          grid-template-columns: 1fr;
+        }
+
+        .rule-connectors {
+          display: none;
+        }
+
+        .scoring {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .factor:not(:last-child)::after {
+          display: none;
+        }
+
+        .confidence-note {
+          grid-template-columns: auto 1fr;
+        }
+
+        .confidence-note span:last-child {
+          grid-column: 2;
+        }
+
+        .loop {
+          grid-template-columns: 1fr;
+        }
+
+        .loop-arrows {
+          display: none;
+        }
+
+        .reliability-track {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .mvp {
+          gap: 24px;
+          padding: 28px 22px;
+        }
+      }
+
+      @media (max-width: 440px) {
+        .hero-machine {
+          border-radius: 22px;
+        }
+
+        .machine-row {
+          grid-template-columns: 40px 1fr auto;
+        }
+
+        .machine-icon {
+          width: 36px;
+          height: 36px;
+        }
+
+        .scoring,
+        .reliability-track {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="page topbar-inner">
+        <a
+          class="brand"
+          href="#top"
+          aria-label="aeokit evidence pipeline — back to top"
+        >
+          <span class="brand-mark">AE</span>
+          <span class="brand-copy">aeokit <small>System explainer</small></span>
+        </a>
+        <nav class="topnav" aria-label="Page sections">
+          <a href="#pipeline">Pipeline</a>
+          <a href="#example">Example</a>
+          <a href="#rules">Rules</a>
+          <a href="#outcomes">Outcomes</a>
+          <a href="#mvp">Smallest version</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="page hero">
+        <div class="hero-copy">
+          <span class="eyebrow">The big picture</span>
+          <h1>aeokit becomes an <span>evidence machine.</span></h1>
+          <p>
+            It watches AI answers and business activity, turns messy signals
+            into clean facts, then finds the next best opportunity
+            automatically.
+          </p>
+          <div class="plain-language">
+            <div>
+              <strong>In plain English</strong>
+              The system collects proof first. Rules decide what the proof
+              means. An LLM only explains the result or drafts the next action.
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="hero-machine"
+          role="img"
+          aria-label="Five-stage overview of the aeokit evidence machine"
+        >
+          <div class="machine-label">
+            <span>Evidence pipeline</span>
+            <span class="live-dot">Event-driven</span>
+          </div>
+          <div class="machine-flow">
+            <div class="machine-row">
+              <span class="machine-icon">01</span>
+              <div>
+                <b>Observe</b
+                ><small>AI answers, referrals, crawlers, page changes</small>
+              </div>
+              <span class="machine-arrow">→</span>
+            </div>
+            <div class="machine-row">
+              <span class="machine-icon">02</span>
+              <div>
+                <b>Normalize</b
+                ><small>Mentions, ranks, claims, citations, costs</small>
+              </div>
+              <span class="machine-arrow">→</span>
+            </div>
+            <div class="machine-row">
+              <span class="machine-icon">03</span>
+              <div>
+                <b>Store proof</b
+                ><small>Searchable facts in D1, originals in R2</small>
+              </div>
+              <span class="machine-arrow">→</span>
+            </div>
+            <div class="machine-row">
+              <span class="machine-icon">04</span>
+              <div>
+                <b>Apply rules</b
+                ><small>Deterministic, repeatable, auditable</small>
+              </div>
+              <span class="machine-arrow">→</span>
+            </div>
+            <div class="machine-row">
+              <span class="machine-icon">05</span>
+              <div>
+                <b>Recommend action</b
+                ><small>Prioritized opportunities with evidence</small>
+              </div>
+              <span class="machine-arrow">✓</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page section" aria-labelledby="mental-model-heading">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">The mental model</div>
+            <h2 id="mental-model-heading">Three jobs. Clear boundaries.</h2>
+          </div>
+          <p>
+            Keeping these responsibilities separate makes the system easier to
+            trust and easier to debug.
+          </p>
+        </div>
+
+        <div class="mental-model">
+          <article class="model-card" data-step="1">
+            <span class="model-index">01</span>
+            <h3>Machines collect the proof</h3>
+            <p>
+              Schedulers, providers, crawlers and analytics continuously produce
+              observations.
+            </p>
+          </article>
+          <article class="model-card" data-step="2">
+            <span class="model-index">02</span>
+            <h3>Rules make the decision</h3>
+            <p>
+              A known condition maps to a known opportunity. The same evidence
+              gets the same result.
+            </p>
+          </article>
+          <article class="model-card" data-step="3">
+            <span class="model-index">03</span>
+            <h3>The LLM explains it</h3>
+            <p>
+              It summarizes the evidence and drafts an action, but it does not
+              invent the trigger.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="page section"
+        id="pipeline"
+        aria-labelledby="pipeline-heading"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">System map</div>
+            <h2 id="pipeline-heading">
+              From a scheduled prompt to an opportunity.
+            </h2>
+          </div>
+          <p>
+            Each block has one responsibility, so every recommendation can point
+            back to its proof.
+          </p>
+        </div>
+
+        <div class="pipeline-shell">
+          <div class="pipeline-legend">
+            <strong>One complete pass through the system</strong>
+            <div class="legend-items" role="list" aria-label="Color legend">
+              <span class="legend-item"
+                ><span class="legend-swatch"></span>Processing</span
+              >
+              <span class="legend-item"
+                ><span class="legend-swatch rules"></span>Decision rule</span
+              >
+              <span class="legend-item"
+                ><span class="legend-swatch outcome"></span>User outcome</span
+              >
+            </div>
+          </div>
+
+          <div class="pipeline">
+            <article class="pipe-stage">
+              <div class="pipe-number">01 · Trigger</div>
+              <h3>Prompt scheduler</h3>
+              <p>Starts a reliable workflow for every prompt and provider.</p>
+              <div class="pipe-list">
+                <span class="pipe-chip">Cloudflare Workflow</span>
+                <span class="pipe-chip">Idempotency key</span>
+              </div>
+            </article>
+            <div class="pipe-arrow" aria-hidden="true">→</div>
+            <article class="pipe-stage">
+              <div class="pipe-number">02 · Collect</div>
+              <h3>Get the answer</h3>
+              <p>Bright Data or DataForSEO returns the AI result.</p>
+              <div class="pipe-list">
+                <span class="pipe-chip">Answer + citations</span>
+                <span class="pipe-chip">Latency + cost</span>
+              </div>
+            </article>
+            <div class="pipe-arrow" aria-hidden="true">→</div>
+            <article class="pipe-stage rules-stage">
+              <div class="pipe-number">03 · Understand</div>
+              <h3>Normalize + test rules</h3>
+              <p>
+                Structure the evidence, then match it against known opportunity
+                conditions.
+              </p>
+              <div class="pipe-list">
+                <span class="pipe-chip">Claims + mentions + rank</span>
+                <span class="pipe-chip">Canonical citation URLs</span>
+              </div>
+            </article>
+            <div class="pipe-arrow" aria-hidden="true">→</div>
+            <article class="pipe-stage outcome-stage">
+              <div class="pipe-number">04 · Act</div>
+              <h3>Opportunity Inbox</h3>
+              <p>Shows what matters, why it matters and what to do next.</p>
+              <div class="pipe-list">
+                <span class="pipe-chip">Priority + confidence</span>
+                <span class="pipe-chip">Linked evidence</span>
+              </div>
+            </article>
+          </div>
+
+          <div class="important-note">
+            <span class="note-badge">!</span>
+            <span
+              ><b>Important:</b> a failed provider run stays “unknown.” It never
+              becomes a fake zero-visibility result.</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="page section"
+        id="example"
+        aria-labelledby="example-heading"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">A real example</div>
+            <h2 id="example-heading">
+              Follow one answer through the pipeline.
+            </h2>
+          </div>
+          <p>
+            Select each step to see how a messy AI answer becomes a concrete
+            recommendation.
+          </p>
+        </div>
+
+        <div class="walkthrough">
+          <div
+            class="step-nav"
+            role="tablist"
+            aria-label="Example pipeline steps"
+          >
+            <h3>Evidence journey</h3>
+            <button
+              type="button"
+              class="step-button"
+              id="tab-observe"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-observe"
+              data-panel="observe"
+            >
+              <span class="step-button-number">1</span>
+              <span><b>Observe</b><small>AI result arrives</small></span>
+            </button>
+            <button
+              type="button"
+              class="step-button"
+              id="tab-normalize"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-normalize"
+              data-panel="normalize"
+              tabindex="-1"
+            >
+              <span class="step-button-number">2</span>
+              <span><b>Normalize</b><small>Make facts usable</small></span>
+            </button>
+            <button
+              type="button"
+              class="step-button"
+              id="tab-compare"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-compare"
+              data-panel="compare"
+              tabindex="-1"
+            >
+              <span class="step-button-number">3</span>
+              <span><b>Compare</b><small>Apply a rule</small></span>
+            </button>
+            <button
+              type="button"
+              class="step-button"
+              id="tab-create"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-create"
+              data-panel="create"
+              tabindex="-1"
+            >
+              <span class="step-button-number">4</span>
+              <span><b>Create</b><small>Open opportunity</small></span>
+            </button>
+            <button
+              type="button"
+              class="step-button"
+              id="tab-explain"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-explain"
+              data-panel="explain"
+              tabindex="-1"
+            >
+              <span class="step-button-number">5</span>
+              <span><b>Explain</b><small>Draft next action</small></span>
+            </button>
+          </div>
+
+          <div class="step-panels">
+            <article
+              class="step-panel"
+              id="panel-observe"
+              role="tabpanel"
+              aria-labelledby="tab-observe"
+            >
+              <div class="step-context">Step 1 · Raw observation</div>
+              <h3>An AI assistant recommends MacSpotter.</h3>
+              <p>
+                The response also cites a competitor and an industry article,
+                but it does not cite MacSpotter’s own website.
+              </p>
+              <div class="example-card">
+                <div class="example-side">
+                  <small>What the AI says</small
+                  ><b>“MacSpotter is the best overall choice…”</b>
+                </div>
+                <span class="example-arrow">→</span>
+                <div class="example-side">
+                  <small>What it cites</small
+                  ><b>competitor.com + industry-news.com</b>
+                </div>
+              </div>
+            </article>
+
+            <article
+              class="step-panel"
+              id="panel-normalize"
+              role="tabpanel"
+              aria-labelledby="tab-normalize"
+              hidden
+            >
+              <div class="step-context">Step 2 · Structured evidence</div>
+              <h3>The answer becomes searchable facts.</h3>
+              <p>
+                aeokit records the recommendation rank, sentiment, claims,
+                citation domains, provider, cost and latency.
+              </p>
+              <div class="example-card">
+                <div class="example-side">
+                  <small>Extracted result</small
+                  ><b>Brand mentioned · Rank #1 · Positive</b>
+                </div>
+                <span class="example-arrow">+</span>
+                <div class="example-side">
+                  <small>Citation check</small><b>Owned domain: not cited</b>
+                </div>
+              </div>
+            </article>
+
+            <article
+              class="step-panel"
+              id="panel-compare"
+              role="tabpanel"
+              aria-labelledby="tab-compare"
+              hidden
+            >
+              <div class="step-context">Step 3 · Deterministic rule</div>
+              <h3>The evidence matches a known condition.</h3>
+              <p>
+                The rule is simple and inspectable. It does not depend on an
+                LLM’s opinion.
+              </p>
+              <div class="example-card">
+                <div class="example-side">
+                  <small>If</small><b>Brand is mentioned + no owned citation</b>
+                </div>
+                <span class="example-arrow">→</span>
+                <div class="example-side">
+                  <small>Then</small><b>Content authority opportunity</b>
+                </div>
+              </div>
+            </article>
+
+            <article
+              class="step-panel"
+              id="panel-create"
+              role="tabpanel"
+              aria-labelledby="tab-create"
+              hidden
+            >
+              <div class="step-context">Step 4 · Opportunity record</div>
+              <h3>A traceable work item enters the Inbox.</h3>
+              <p>
+                It includes type, priority, confidence, affected prompts, URLs,
+                timestamps and links to every piece of supporting evidence.
+              </p>
+              <div class="example-card">
+                <div class="example-side">
+                  <small>Opportunity</small
+                  ><b>Earn an owned citation for “best Mac inventory”</b>
+                </div>
+                <span class="example-arrow">·</span>
+                <div class="example-side">
+                  <small>Confidence</small><b>0.86 · 3 providers agree</b>
+                </div>
+              </div>
+            </article>
+
+            <article
+              class="step-panel"
+              id="panel-explain"
+              role="tabpanel"
+              aria-labelledby="tab-explain"
+              hidden
+            >
+              <div class="step-context">Step 5 · LLM-assisted explanation</div>
+              <h3>Now the LLM turns the evidence into useful prose.</h3>
+              <p>
+                It can explain the gap and draft a content brief. The underlying
+                trigger and priority still come from the stored evidence and
+                rules.
+              </p>
+              <div class="example-card">
+                <div class="example-side">
+                  <small>Explanation</small
+                  ><b
+                    >You rank first, but third-party pages receive the
+                    authority.</b
+                  >
+                </div>
+                <span class="example-arrow">→</span>
+                <div class="example-side">
+                  <small>Draft action</small
+                  ><b
+                    >Strengthen the inventory-history page with cited proof.</b
+                  >
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="page section" aria-labelledby="storage-heading">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Evidence storage</div>
+            <h2 id="storage-heading">Keep the index and the original.</h2>
+          </div>
+          <p>
+            D1 makes evidence easy to query. R2 preserves exactly what the
+            provider sent for audits and reprocessing.
+          </p>
+        </div>
+
+        <div class="storage-grid">
+          <article class="storage-card">
+            <div class="storage-label">
+              <b>D1</b><span class="storage-kind">Searchable facts</span>
+            </div>
+            <p>
+              Small, structured fields used by the app, filters, scoring and
+              opportunity rules.
+            </p>
+            <div class="field-cloud">
+              <span>brand_mentioned</span><span>recommendation_rank</span
+              ><span>sentiment</span><span>canonical_url</span
+              ><span>confidence</span><span>latency</span><span>cost</span>
+            </div>
+          </article>
+          <article class="storage-card raw">
+            <div class="storage-label">
+              <b>R2</b><span class="storage-kind">Original proof</span>
+            </div>
+            <p>
+              The complete provider response, untouched. Useful for debugging,
+              re-analysis and compliance.
+            </p>
+            <div class="field-cloud">
+              <span>raw_response.json</span><span>provider_payload</span
+              ><span>original_citations</span><span>failure_details</span
+              ><span>fallback_result</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page section" id="rules" aria-labelledby="rules-heading">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Opportunity engine</div>
+            <h2 id="rules-heading">
+              Evidence in. Predictable opportunities out.
+            </h2>
+          </div>
+          <p>
+            These are examples of the deterministic rules that make the Inbox
+            trustworthy.
+          </p>
+        </div>
+
+        <div class="rule-board">
+          <div class="rule-column">
+            <div class="rule-heading">Observed evidence</div>
+            <div class="rule-card">
+              <span class="rule-glyph">01</span>
+              <div>
+                <b>Competitor cited</b><small>Owned domain is absent</small>
+              </div>
+            </div>
+            <div class="rule-card">
+              <span class="rule-glyph">02</span>
+              <div><b>Brand mentioned</b><small>No owned citation</small></div>
+            </div>
+            <div class="rule-card">
+              <span class="rule-glyph">03</span>
+              <div>
+                <b>Brand ranked first</b><small>Owned page is cited</small>
+              </div>
+            </div>
+            <div class="rule-card">
+              <span class="rule-glyph">04</span>
+              <div>
+                <b>Failures exceed threshold</b
+                ><small>Coverage is becoming unreliable</small>
+              </div>
+            </div>
+            <div class="rule-card">
+              <span class="rule-glyph">05</span>
+              <div>
+                <b>AI visitors search</b><small>But do not create alerts</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="rule-connectors" aria-hidden="true">
+            <span></span><span>→</span><span>→</span><span>→</span><span>→</span
+            ><span>→</span>
+          </div>
+
+          <div class="rule-column">
+            <div class="rule-heading">Created opportunity</div>
+            <div class="opportunity-card">
+              <span class="rule-glyph">A</span>
+              <div>
+                <b>Citation gap</b
+                ><small>Earn a source AI systems can cite</small>
+              </div>
+            </div>
+            <div class="opportunity-card">
+              <span class="rule-glyph">B</span>
+              <div>
+                <b>Content authority</b
+                ><small>Make owned proof more authoritative</small>
+              </div>
+            </div>
+            <div class="opportunity-card">
+              <span class="rule-glyph">C</span>
+              <div>
+                <b>Winning message</b
+                ><small>Expand what is already working</small>
+              </div>
+            </div>
+            <div class="opportunity-card">
+              <span class="rule-glyph">D</span>
+              <div>
+                <b>Reliability warning</b
+                ><small>Fix measurement before interpreting it</small>
+              </div>
+            </div>
+            <div class="opportunity-card">
+              <span class="rule-glyph">E</span>
+              <div>
+                <b>Conversion opportunity</b
+                ><small>Improve the alert creation journey</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page section" aria-labelledby="ranking-heading">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Inbox ranking</div>
+            <h2 id="ranking-heading">The most useful work rises to the top.</h2>
+          </div>
+          <p>
+            Priority is a transparent multiplication of four factors, not a
+            mysterious AI score.
+          </p>
+        </div>
+
+        <div class="scoring" role="group" aria-label="Priority score formula">
+          <article class="factor">
+            <div class="factor-number">01</div>
+            <h3>Business intent</h3>
+            <p>Does this prompt or behavior indicate strong purchase intent?</p>
+          </article>
+          <article class="factor">
+            <div class="factor-number">02</div>
+            <h3>Evidence confidence</h3>
+            <p>How much reliable evidence supports this conclusion?</p>
+          </article>
+          <article class="factor">
+            <div class="factor-number">03</div>
+            <h3>Estimated impact</h3>
+            <p>How valuable could the change be if it succeeds?</p>
+          </article>
+          <article class="factor">
+            <div class="factor-number">04</div>
+            <h3>Freshness</h3>
+            <p>How recent and still-actionable is the signal?</p>
+          </article>
+        </div>
+        <div class="confidence-note">
+          <strong>Confidence stays honest</strong>
+          <span>One answer does not pretend to be a trend.</span>
+          <span>Label shown: “Early signal”</span>
+        </div>
+      </section>
+
+      <section
+        class="page section"
+        id="outcomes"
+        aria-labelledby="outcomes-heading"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Business outcomes</div>
+            <h2 id="outcomes-heading">
+              Connect AI visibility to what people actually do.
+            </h2>
+          </div>
+          <p>
+            The system measures actions after an AI referral and watches whether
+            website changes improve later evidence.
+          </p>
+        </div>
+
+        <div class="funnel-loop-grid">
+          <article class="visual-panel">
+            <h3>The PostHog growth funnel</h3>
+            <p>
+              Anonymous aggregates answer whether AI-referred visitors activate.
+            </p>
+            <div class="funnel">
+              <div class="funnel-step">
+                AI referral session <span>100%</span>
+              </div>
+              <div class="funnel-step">Inventory search <span>48%</span></div>
+              <div class="funnel-step">
+                Stock alert created <span>12%</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="visual-panel">
+            <h3>The content feedback loop</h3>
+            <p>
+              Watch a deployment travel through crawlers, AI answers and
+              conversions.
+            </p>
+            <div class="loop">
+              <div class="loop-stack">
+                <div class="loop-card">
+                  1. Page changes<small>Sitemap + content hashes</small>
+                </div>
+                <div class="loop-card">
+                  2. AI crawler returns<small
+                    >OpenAI, Anthropic, Perplexity</small
+                  >
+                </div>
+              </div>
+              <div class="loop-arrows" aria-hidden="true">
+                <span>→</span><span>←</span>
+              </div>
+              <div class="loop-stack">
+                <div class="loop-card">
+                  3. Citation changes<small
+                    >Compare prompt evidence before/after</small
+                  >
+                </div>
+                <div class="loop-card">
+                  4. Conversion changes<small
+                    >Compare activation before/after</small
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="causation-warning">
+              <strong>Careful wording:</strong> “Likely associated” —
+              correlation is useful evidence, not perfect causation.
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page section" aria-labelledby="reliability-heading">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Reliable execution</div>
+            <h2 id="reliability-heading">
+              Every run has a visible, recoverable journey.
+            </h2>
+          </div>
+          <p>
+            Users see progress immediately. Temporary provider problems do not
+            destroy the evidence trail.
+          </p>
+        </div>
+
+        <div class="reliability-track">
+          <article class="reliability-step">
+            <span class="reliability-state">Queued</span><b>Start once</b>
+            <p>An idempotency key blocks accidental duplicate runs.</p>
+          </article>
+          <article class="reliability-step">
+            <span class="reliability-state">Running</span><b>Call provider</b>
+            <p>Run Now is disabled while work is active.</p>
+          </article>
+          <article class="reliability-step">
+            <span class="reliability-state">Waiting</span><b>Back off</b>
+            <p>Polling slows progressively and respects provider timeouts.</p>
+          </article>
+          <article class="reliability-step">
+            <span class="reliability-state">Retrying</span
+            ><b>Preserve failure</b>
+            <p>The original error remains available as evidence.</p>
+          </article>
+          <article class="reliability-step">
+            <span class="reliability-state">Fallback</span><b>Try alternate</b>
+            <p>Optionally switch from Bright Data to DataForSEO.</p>
+          </article>
+          <article class="reliability-step">
+            <span class="reliability-state">Complete</span><b>Store both</b>
+            <p>Keep the fallback result beside the first attempt.</p>
+          </article>
+        </div>
+        <div class="idempotency">
+          <b>unique run =</b> project_id + prompt_id + provider +
+          scheduled_window
+        </div>
+      </section>
+
+      <section class="page section" id="mvp" aria-labelledby="mvp-heading">
+        <div class="mvp">
+          <div class="mvp-copy">
+            <div class="section-kicker mvp-kicker">Smallest useful version</div>
+            <h2 id="mvp-heading">Start with one tight loop.</h2>
+            <p>
+              These six pieces deliver most of the value.
+              <strong>No complicated autonomous agent is needed first.</strong>
+            </p>
+          </div>
+          <div
+            class="mvp-list"
+            role="list"
+            aria-label="Minimum implementation checklist"
+          >
+            <div class="mvp-item">
+              <span class="mvp-check">✓</span>Opportunities table
+            </div>
+            <div class="mvp-item">
+              <span class="mvp-check">✓</span>Claims table
+            </div>
+            <div class="mvp-item">
+              <span class="mvp-check">✓</span>Citation URL normalization
+            </div>
+            <div class="mvp-item">
+              <span class="mvp-check">✓</span>Post-run analysis step
+            </div>
+            <div class="mvp-item">
+              <span class="mvp-check">✓</span>Six deterministic rules
+            </div>
+            <div class="mvp-item">
+              <span class="mvp-check">✓</span>One Opportunity Inbox page
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page takeaway">
+        <span class="eyebrow">The takeaway</span>
+        <h2>
+          aeokit turns scattered signals into a prioritized, evidence-backed
+          to-do list.
+        </h2>
+        <p>
+          <strong>Observe → normalize → prove → decide → explain → act.</strong
+          ><br />That is the event-driven evidence pipeline.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="page">
+        aeokit system concept · Visual architecture explainer
+      </div>
+    </footer>
+
+    <script>
+      const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+      const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+
+      function activateTab(tab) {
+        tabs.forEach((candidate) => {
+          const selected = candidate === tab;
+          candidate.setAttribute("aria-selected", String(selected));
+          candidate.tabIndex = selected ? 0 : -1;
+        });
+
+        panels.forEach((panel) => {
+          panel.hidden = panel.id !== `panel-${tab.dataset.panel}`;
+        });
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => activateTab(tab));
+        tab.addEventListener("keydown", (event) => {
+          if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+          event.preventDefault();
+          const direction = event.key === "ArrowRight" ? 1 : -1;
+          const next = tabs[(index + direction + tabs.length) % tabs.length];
+          activateTab(next);
+          next.focus();
+        });
+      });
+    </script>
+  </body>
+</html>

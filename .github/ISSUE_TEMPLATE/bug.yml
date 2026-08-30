@@ -1,0 +1,50 @@
+name: Bug report
+description: Report a reproducible problem in aeokit.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: checkboxes
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for this problem.
+          required: true
+        - label: This report does not contain credentials or private customer data.
+          required: true
+
+  - type: input
+    attributes:
+      label: Version or commit
+      placeholder: v0.1.0 or a commit SHA
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Deployment
+      options:
+        - Docker/PostgreSQL
+        - Local Cloudflare
+        - Hosted aeokit
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Reproduction steps
+      description: Include the smallest sequence that consistently reproduces the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Relevant logs
+      description: Remove tokens, provider responses, and customer data before pasting logs.
+      render: shell

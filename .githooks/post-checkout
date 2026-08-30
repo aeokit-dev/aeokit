@@ -1,0 +1,26 @@
+#!/bin/sh
+# aeokit-managed-env-link-hook
+
+set -eu
+
+repository_root=$(git rev-parse --show-toplevel)
+primary_worktree=$(git worktree list --porcelain | sed -n '1s/^worktree //p')
+environment_file="$primary_worktree/.env"
+worktree_environment="$repository_root/.env"
+
+if [ -z "$primary_worktree" ] || [ "$repository_root" = "$primary_worktree" ]; then
+  exit 0
+fi
+
+if [ ! -f "$environment_file" ]; then
+  exit 0
+fi
+
+if [ -e "$worktree_environment" ] && [ ! -L "$worktree_environment" ]; then
+  echo "Skipping .env link because a regular file already exists: $worktree_environment" >&2
+  exit 0
+fi
+
+ln -sfn "$environment_file" "$worktree_environment"
+chmod 600 "$environment_file"
+echo "Linked $worktree_environment -> $environment_file"
