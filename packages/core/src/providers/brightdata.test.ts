@@ -5,7 +5,7 @@ import {
   brightDataPollDelay,
   brightDataPromptLimit,
   createBrightDataProvider,
-} from "./brightdata";
+} from "./brightdata.js";
 
 const credentials = {
   BRIGHTDATA_API_KEY: "bright-data-api-key",

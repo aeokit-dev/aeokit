@@ -1,9 +1,9 @@
-import { analyzeAnswer, normalizeDomain } from "./analysis";
+import { analyzeAnswer, normalizeDomain } from "./analysis.js";
 import type {
   CitationCategory,
   CitationResult,
   TrackableEntity,
-} from "./types";
+} from "./types.js";
 
 export type RecommendationStrength =
   "best_overall" | "top_choice" | "alternative" | "neutral_mention";

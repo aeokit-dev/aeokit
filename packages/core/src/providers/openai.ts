@@ -3,8 +3,8 @@ import type {
   ProviderEnvironment,
   ProviderRunResult,
   RunOptions,
-} from "../types";
-import { apiError, dedupeCitations, domainFromUrl } from "./shared";
+} from "../types.js";
+import { apiError, dedupeCitations, domainFromUrl } from "./shared.js";
 
 interface OpenAIResponse {
   model?: string;

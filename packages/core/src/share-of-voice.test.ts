@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildShareOfVoiceReport } from "./share-of-voice";
+import { buildShareOfVoiceReport } from "./share-of-voice.js";
 
 const surfaces = [
   { provider: "brightdata", model: "chatgpt" },

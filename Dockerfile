@@ -13,7 +13,7 @@ COPY packages/db/package.json packages/db/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm --filter @openaeo/api build && pnpm --filter @openaeo/worker build
+RUN pnpm --filter @aeokit/api build && pnpm --filter @aeokit/worker build
 
 FROM node:24-slim AS runtime
 
@@ -26,4 +26,4 @@ COPY --from=build /app /app
 ENV NODE_ENV=production
 EXPOSE 8787
 
-CMD ["pnpm", "--filter", "@openaeo/api", "start"]
+CMD ["pnpm", "--filter", "@aeokit/api", "start"]

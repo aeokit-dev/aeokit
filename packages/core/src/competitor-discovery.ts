@@ -1,5 +1,5 @@
-import { redactDataUriPayloads } from "./providers/shared";
-import type { TrackableEntity } from "./types";
+import { redactDataUriPayloads } from "./providers/shared.js";
+import type { TrackableEntity } from "./types.js";
 
 export interface CompetitorDiscoveryRun {
   id: string;

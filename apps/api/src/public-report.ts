@@ -1,1 +1,1 @@
-export * from "@openaeo/core/public-report";
+export * from "@aeokit/core/public-report";

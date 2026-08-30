@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { db, workerHeartbeats } from "@openaeo/db";
+import { db, workerHeartbeats } from "@aeokit/db";
 
 export const workerId = process.env.WORKER_ID || "primary";
 

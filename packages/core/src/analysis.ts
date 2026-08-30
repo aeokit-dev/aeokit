@@ -2,7 +2,7 @@ import type {
   CitationClassification,
   RunAnalysis,
   TrackableEntity,
-} from "./types";
+} from "./types.js";
 
 const SOCIAL_DOMAINS = new Set([
   "facebook.com",

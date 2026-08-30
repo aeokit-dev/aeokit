@@ -8,7 +8,7 @@ import {
   completedUtcDayWindows,
   syncCrawlerTrafficHistory,
   type CrawlerTrafficDailySnapshot,
-} from "./index";
+} from "./index.js";
 
 function jsonResponse(value: unknown, status = 200): Response {
   return new Response(JSON.stringify(value), {

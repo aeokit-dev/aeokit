@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   discoverCompetitors,
   hasMateriallyNewEvidence,
-} from "./competitor-discovery";
+} from "./competitor-discovery.js";
 
 const runs = [
   {

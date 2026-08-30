@@ -1,7 +1,6 @@
 {
-  "name": "@openaeo/db",
+  "name": "@aeokit/db",
   "version": "0.1.0",
-  "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
   "exports": {
@@ -9,6 +8,26 @@
     "./client": "./src/client.ts",
     "./schema": "./src/schema.ts"
   },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./client": {
+        "types": "./dist/client.d.ts",
+        "import": "./dist/client.js"
+      },
+      "./schema": {
+        "types": "./dist/schema.d.ts",
+        "import": "./dist/schema.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "migrations"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",

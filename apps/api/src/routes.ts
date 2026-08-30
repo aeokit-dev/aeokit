@@ -26,7 +26,7 @@ import {
   prompts,
   promptTargets,
   workerHeartbeats,
-} from "@openaeo/db";
+} from "@aeokit/db";
 import {
   attachTrackedCitations,
   aiChatTitle,
@@ -64,14 +64,14 @@ import {
   type AiReferralPeriod,
   type MetricRun,
   type ProviderId,
-} from "@openaeo/core";
+} from "@aeokit/core";
 import { getQueue } from "./queue";
 import {
   runDetail,
   runSummary,
   shouldShowProviderCosts,
 } from "./cost-visibility";
-import { CloudflareCrawlerTrafficClient } from "@openaeo/cloudflare-analytics";
+import { CloudflareCrawlerTrafficClient } from "@aeokit/cloudflare-analytics";
 import { createCrawlerTrafficRoutes } from "./crawler-traffic-route";
 import { renderPublicReportHtml, slugify } from "./public-report";
 import { loadPublicReport } from "./public-report-routes";

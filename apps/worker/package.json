@@ -1,5 +1,5 @@
 {
-  "name": "@openaeo/worker",
+  "name": "@aeokit/worker",
   "version": "0.1.0",
   "private": true,
   "license": "AGPL-3.0-only",
@@ -12,9 +12,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@openaeo/cloudflare-analytics": "workspace:*",
-    "@openaeo/core": "workspace:*",
-    "@openaeo/db": "workspace:*",
+    "@aeokit/cloudflare-analytics": "workspace:*",
+    "@aeokit/core": "workspace:*",
+    "@aeokit/db": "workspace:*",
     "drizzle-orm": "^0.45.2",
     "pg-boss": "^12.27.0"
   },

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildFallbackPromptSuggestions,
   parsePromptSuggestionResponse,
-} from "./prompt-suggestions";
+} from "./prompt-suggestions.js";
 
 const context = {
   brandName: "Acme",

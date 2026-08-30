@@ -7,7 +7,7 @@ import {
   promptRuns,
   prompts,
   reportRedirects,
-} from "@openaeo/db";
+} from "@aeokit/db";
 import {
   buildPublicReport,
   renderPublicReportHtml,

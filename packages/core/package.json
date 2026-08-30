@@ -1,7 +1,6 @@
 {
-  "name": "@openaeo/core",
+  "name": "@aeokit/core",
   "version": "0.1.0",
-  "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
   "exports": {
@@ -12,6 +11,37 @@
     "./types": "./src/types.ts",
     "./public-report": "./src/public-report.ts"
   },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      },
+      "./analysis": {
+        "types": "./dist/analysis.d.ts",
+        "import": "./dist/analysis.js"
+      },
+      "./metrics": {
+        "types": "./dist/metrics.d.ts",
+        "import": "./dist/metrics.js"
+      },
+      "./providers": {
+        "types": "./dist/providers/index.d.ts",
+        "import": "./dist/providers/index.js"
+      },
+      "./types": {
+        "types": "./dist/types.d.ts",
+        "import": "./dist/types.js"
+      },
+      "./public-report": {
+        "types": "./dist/public-report.d.ts",
+        "import": "./dist/public-report.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",

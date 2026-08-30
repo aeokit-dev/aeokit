@@ -1,10 +1,10 @@
-import { metricSummary } from "./metrics";
+import { metricSummary } from "./metrics.js";
 import {
   compareSurfaces,
   describeSurface,
   surfaceKey,
   uniqueSurfaces,
-} from "./surfaces";
+} from "./surfaces.js";
 
 export interface ShareOfVoicePromptInput {
   id: string;

@@ -48,6 +48,36 @@ pnpm dev
 `pnpm dev` starts the API and background worker. The API listens on port 8787
 unless `API_PORT` overrides it.
 
+## CLI, MCP, and API-key mode
+
+The CLI and MCP stdio server use the same runtime URL and bearer key:
+
+```sh
+AEOKIT_URL=http://127.0.0.1:3000 pnpm --filter @aeokit/cli start health
+AEOKIT_URL=https://cloud.aeokit.dev \
+AEOKIT_API_KEY=aeo_live_... \
+pnpm --filter @aeokit/cli start projects
+```
+
+Local mode remains unauthenticated. To protect a networked self-hosted runtime,
+generate a key, keep the displayed secret, and configure only its hash:
+
+```sh
+pnpm --filter @aeokit/cli start key create
+# Set AEOKIT_AUTH_MODE=api-key and AEOKIT_API_KEY_HASHES=<returned hash>
+```
+
+Start the stdio MCP server with the same environment:
+
+```sh
+AEOKIT_URL=https://cloud.aeokit.dev \
+AEOKIT_API_KEY=aeo_live_... \
+pnpm --filter @aeokit/cli start mcp
+```
+
+It exposes health, project listing, and read-only API tools. Claude, Codex, and
+other MCP hosts can launch that command without a separate Aeokit login flow.
+
 ## Provider configuration
 
 Provider keys stay in the runtime environment. Common variables include:

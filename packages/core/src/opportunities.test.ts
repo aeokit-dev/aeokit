@@ -4,7 +4,7 @@ import {
   generateReliabilityOpportunity,
   generateRunOpportunities,
   normalizeCitationUrl,
-} from "./opportunities";
+} from "./opportunities.js";
 
 const brand = {
   name: "MacSpotter",

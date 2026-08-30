@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { closeDatabase, sql } from "./client";
+import { closeDatabase, sql } from "./client.js";
 
 const migrationDirectory = join(
   dirname(fileURLToPath(import.meta.url)),

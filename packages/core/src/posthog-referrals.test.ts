@@ -5,7 +5,7 @@ import {
   buildPostHogAiReferralsQuery,
   fetchPostHogAiReferrals,
   postHogReferralsConfiguration,
-} from "./posthog-referrals";
+} from "./posthog-referrals.js";
 
 describe("PostHog AI outcomes", () => {
   it("reports incomplete server-side configuration and normalizes success events", () => {

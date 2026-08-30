@@ -1,5 +1,5 @@
-import { brightDataModelOptions } from "./providers/brightdata";
-import { dataForSeoModelOptions } from "./providers/dataforseo";
+import { brightDataModelOptions } from "./providers/brightdata.js";
+import { dataForSeoModelOptions } from "./providers/dataforseo.js";
 
 export interface SurfaceDescriptor {
   /** Normalized provider id, e.g. `brightdata`. */

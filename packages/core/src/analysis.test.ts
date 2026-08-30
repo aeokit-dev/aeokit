@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { analyzeAnswer, classifyCitation, normalizeDomain } from "./analysis";
+import {
+  analyzeAnswer,
+  classifyCitation,
+  normalizeDomain,
+} from "./analysis.js";
 
 describe("answer analysis", () => {
   it("detects aliases, domains, and competitors", () => {

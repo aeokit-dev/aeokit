@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { citationSurfaceCoverage, describeSurface } from "./surfaces";
-import { stripDataUriImages } from "./providers/shared";
+import { citationSurfaceCoverage, describeSurface } from "./surfaces.js";
+import { stripDataUriImages } from "./providers/shared.js";
 
 describe("citation surface coverage", () => {
   it("reports a surface that answered but cited nothing", () => {

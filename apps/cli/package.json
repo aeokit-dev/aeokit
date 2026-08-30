@@ -1,11 +1,26 @@
 {
-  "name": "@aeokit/api",
+  "name": "@aeokit/cli",
   "version": "0.1.0",
-  "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
+  "bin": {
+    "aeokit": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
+    },
+    "./mcp": {
+      "types": "./dist/mcp.d.ts",
+      "import": "./dist/mcp.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
@@ -13,14 +28,7 @@
   },
   "dependencies": {
     "@aeokit/auth": "workspace:*",
-    "@hono/node-server": "^1.19.1",
-    "@hono/zod-validator": "^0.7.6",
-    "@aeokit/cloudflare-analytics": "workspace:*",
-    "@aeokit/core": "workspace:*",
-    "@aeokit/db": "workspace:*",
-    "drizzle-orm": "^0.45.2",
-    "hono": "^4.12.25",
-    "pg-boss": "^12.27.0",
+    "@modelcontextprotocol/server": "^2.0.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {

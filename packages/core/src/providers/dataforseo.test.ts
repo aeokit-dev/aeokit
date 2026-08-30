@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createDataForSeoProvider, dataForSeoPromptLimit } from "./dataforseo";
+import {
+  createDataForSeoProvider,
+  dataForSeoPromptLimit,
+} from "./dataforseo.js";
 
 const credentials = {
   DATAFORSEO_API_KEY: Buffer.from("api-login:api-password").toString("base64"),

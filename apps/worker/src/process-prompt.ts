@@ -9,7 +9,7 @@ import {
   normalizeCitationUrl,
   normalizeDomain,
   type ProviderId,
-} from "@openaeo/core";
+} from "@aeokit/core";
 import {
   citations,
   claims,
@@ -20,7 +20,7 @@ import {
   promptRuns,
   prompts,
   promptTargets,
-} from "@openaeo/db";
+} from "@aeokit/db";
 import { isRetryableProviderError, retryWithBackoff } from "./retry";
 
 function positiveInteger(value: string | undefined, fallback: number): number {
