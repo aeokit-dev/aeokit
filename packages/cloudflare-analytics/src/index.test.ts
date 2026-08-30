@@ -429,6 +429,75 @@ describe("CloudflareCrawlerTrafficClient", () => {
     });
   });
 
+  it("finds the first crawler visit for an exact URL path", async () => {
+    const fetchMock = vi.fn<typeof fetch>();
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        success: true,
+        result: [{ id: "zone-123", name: "example.com" }],
+        errors: [],
+      }),
+    );
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        data: {
+          viewer: {
+            zones: [
+              {
+                pathGroups: [
+                  {
+                    count: 1,
+                    dimensions: {
+                      clientRequestPath: "/research",
+                      datetimeHour: "2026-08-26T10:00:00Z",
+                      userAgent: "Mozilla/5.0",
+                    },
+                  },
+                  {
+                    count: 2,
+                    dimensions: {
+                      clientRequestPath: "/research",
+                      datetimeHour: "2026-08-26T11:00:00Z",
+                      userAgent: "OAI-SearchBot/1.0",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        errors: null,
+      }),
+    );
+    const client = new CloudflareCrawlerTrafficClient({ fetchFn: fetchMock });
+
+    await expect(
+      client.getFirstCrawlerVisit(
+        "https://example.com",
+        "https://example.com/research?utm_source=test",
+        new Date("2026-08-26T09:00:00.000Z"),
+        new Date("2026-08-27T09:00:00.000Z"),
+        "server-secret",
+      ),
+    ).resolves.toEqual({
+      at: "2026-08-26T11:00:00.000Z",
+      family: "OpenAI",
+      requests: 2,
+      source: "cloudflare_http_requests_adaptive_groups",
+    });
+
+    const body = JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body)) as {
+      query: string;
+      variables: { filter: Record<string, unknown> };
+    };
+    expect(body.variables.filter).toMatchObject({
+      clientRequestPath: "/research",
+      clientRequestHTTPHost_in: ["example.com", "www.example.com"],
+    });
+    expect(body.query).toContain("datetimeHour");
+    expect(body.query).toContain("clientRequestPath");
+  });
+
   it("handles missing configuration and empty Cloudflare data", async () => {
     const fetchMock = vi.fn<typeof fetch>();
     const unconfigured = new CloudflareCrawlerTrafficClient({

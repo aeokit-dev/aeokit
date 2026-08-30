@@ -89,6 +89,13 @@ export interface CrawlerTrafficData {
   end: string;
 }
 
+export interface FirstCrawlerVisit {
+  at: string;
+  family: CrawlerFamily;
+  requests: number;
+  source: "cloudflare_http_requests_adaptive_groups";
+}
+
 export type CrawlerTrafficDailySnapshot = Omit<
   CrawlerTrafficData,
   "topUserAgents"
@@ -366,6 +373,14 @@ interface GraphqlResponse {
             userAgent?: string;
           };
         }>;
+        pathGroups?: Array<{
+          count?: number | string;
+          dimensions?: {
+            clientRequestPath?: string;
+            datetimeHour?: string;
+            userAgent?: string;
+          };
+        }>;
       }>;
     };
   };
@@ -387,6 +402,27 @@ const crawlerTrafficQuery = `
           count
           dimensions {
             clientRequestHTTPHost
+            userAgent
+          }
+        }
+      }
+    }
+  }
+`;
+
+const firstCrawlerVisitQuery = `
+  query FirstCrawlerVisit($zoneTag: string, $filter: filter) {
+    viewer {
+      zones(filter: { zoneTag: $zoneTag }) {
+        pathGroups: httpRequestsAdaptiveGroups(
+          limit: ${GRAPHQL_GROUP_LIMIT}
+          orderBy: [datetimeHour_ASC]
+          filter: $filter
+        ) {
+          count
+          dimensions {
+            clientRequestPath
+            datetimeHour
             userAgent
           }
         }
@@ -528,6 +564,96 @@ export class CloudflareCrawlerTrafficClient {
 
     try {
       return await this.fetchWindow(website, start, end, token, cacheKey);
+    } catch (error) {
+      if (error instanceof CloudflareCrawlerTrafficError) throw error;
+      throw new CloudflareCrawlerTrafficError("cloudflare_unavailable");
+    }
+  }
+
+  async getFirstCrawlerVisit(
+    website: string,
+    pageUrl: string,
+    start: Date,
+    end: Date,
+    tokenOverride?: string,
+  ): Promise<FirstCrawlerVisit | null> {
+    const token = (tokenOverride ?? this.defaultToken).trim();
+    if (!token) {
+      throw new CloudflareCrawlerTrafficError("cloudflare_not_configured");
+    }
+    const duration = end.getTime() - start.getTime();
+    if (
+      !Number.isFinite(start.getTime()) ||
+      !Number.isFinite(end.getTime()) ||
+      duration <= 0 ||
+      duration > 31 * DAY_MS
+    ) {
+      throw new RangeError(
+        "Crawler visit lookup windows must be between zero and 31 days",
+      );
+    }
+    let page: URL;
+    try {
+      page = new URL(pageUrl);
+    } catch {
+      throw new CloudflareCrawlerTrafficError("cloudflare_zone_not_found");
+    }
+    try {
+      const zone = await this.resolveZone(website, token);
+      const response = await this.fetchFn(`${CLOUDFLARE_API_BASE}/graphql`, {
+        method: "POST",
+        headers: this.authorizationHeaders(token),
+        signal: AbortSignal.timeout(CLOUDFLARE_REQUEST_TIMEOUT_MS),
+        body: JSON.stringify({
+          query: firstCrawlerVisitQuery,
+          variables: {
+            zoneTag: zone.id,
+            filter: {
+              datetime_geq: start.toISOString(),
+              datetime_lt: end.toISOString(),
+              requestSource: "eyeball",
+              clientRequestHTTPHost_in: [zone.name, `www.${zone.name}`],
+              clientRequestPath: page.pathname,
+            },
+          },
+        }),
+      });
+      const payload = (await response
+        .json()
+        .catch(() => null)) as GraphqlResponse | null;
+      if (hasPermissionError(response.status, payload?.errors)) {
+        throw new CloudflareCrawlerTrafficError(
+          "cloudflare_insufficient_permissions",
+        );
+      }
+      if (!response.ok || !payload || payload.errors?.length) {
+        throw new CloudflareCrawlerTrafficError("cloudflare_graphql_error");
+      }
+      const groups = payload.data?.viewer?.zones?.[0]?.pathGroups;
+      if (!Array.isArray(groups)) {
+        throw new CloudflareCrawlerTrafficError("cloudflare_graphql_error");
+      }
+      const visits = groups.flatMap((group) => {
+        const count = countValue(group.count);
+        const at = group.dimensions?.datetimeHour;
+        const family = classifyCrawlerUserAgent(
+          group.dimensions?.userAgent ?? "",
+        );
+        if (!family || count === undefined || !at) return [];
+        const timestamp = new Date(at);
+        if (!Number.isFinite(timestamp.getTime())) return [];
+        return [{ at: timestamp, family, requests: count }];
+      });
+      visits.sort((left, right) => left.at.getTime() - right.at.getTime());
+      const first = visits[0];
+      return first
+        ? {
+            at: first.at.toISOString(),
+            family: first.family,
+            requests: first.requests,
+            source: "cloudflare_http_requests_adaptive_groups",
+          }
+        : null;
     } catch (error) {
       if (error instanceof CloudflareCrawlerTrafficError) throw error;
       throw new CloudflareCrawlerTrafficError("cloudflare_unavailable");
