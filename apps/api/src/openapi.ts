@@ -43,6 +43,24 @@ function summaryFor(method: string, path: string): string {
   return `${method[0]}${method.slice(1).toLowerCase()} ${resource || "runtime"}`;
 }
 
+function mcpMetadata(method: string, path: string) {
+  const readOnly = method === "GET";
+  const startsProviderRun =
+    method === "POST" && /\/prompts\/:promptId\/run$/.test(path);
+  const destructive = method === "DELETE" || /\/(archive|cancel)$/.test(path);
+  return {
+    destructive,
+    cost: startsProviderRun,
+    confirmation: startsProviderRun
+      ? "Starting this run may spend provider credits; require explicit user authorization and a cost ceiling."
+      : readOnly
+        ? undefined
+        : destructive
+          ? "This operation changes or removes AeoKit state; require explicit user authorization."
+          : "This operation changes AeoKit state; require explicit user authorization.",
+  };
+}
+
 export function createOpenApiDocument(routes: readonly RuntimeRoute[]) {
   const paths: Record<string, Record<string, unknown>> = {};
 
@@ -58,6 +76,7 @@ export function createOpenApiDocument(routes: readonly RuntimeRoute[]) {
       operationId: operationId(route.method, route.path),
       summary: summaryFor(route.method, route.path),
       tags: [tagFor(route.path)],
+      "x-aeokit-mcp": mcpMetadata(route.method, route.path),
       ...(parameters.length ? { parameters } : {}),
       ...(acceptsBody
         ? {
