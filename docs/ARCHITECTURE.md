@@ -11,6 +11,8 @@ local/self-hosted adapter.
 - `packages/core` contains analysis, metrics, provider clients, evidence
   processing, and recommendations.
 - `packages/db` owns the PostgreSQL schema and migrations.
+- `packages/crud-ui` provides a framework-independent UI generated from the
+  runtime OpenAPI contract. It does not contain hosted application concerns.
 - `packages/cloudflare-analytics` is a portable client for crawler analytics;
   it is not a deployment adapter.
 
@@ -54,7 +56,8 @@ plane.
 - `aeokit` is the public runtime, API contract, CLI, JavaScript client, and MCP
   server.
 - `aeokit-cloud` is the hosted control plane and Cloudflare adapter. It imports
-  a pinned public runtime revision.
+  a pinned public runtime revision and mounts the portable CRUD UI inside its
+  authenticated application shell.
 - `aeokit-app` and `aeokit-agent` are clients. They communicate through the
   HTTP contract and do not own runtime logic.
 - CMS, commerce, CI, and agent integrations are additional clients of the same

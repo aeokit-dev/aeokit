@@ -137,6 +137,7 @@ The portable repository contains:
 - `apps/worker` — PostgreSQL/pg-boss background execution and scheduling
 - `packages/core` — provider-neutral analysis and domain logic
 - `packages/db` — PostgreSQL schema and migrations
+- `packages/crud-ui` — portable OpenAPI-generated CRUD and API-operation UI
 - `packages/cloudflare-analytics` — portable Cloudflare crawler analytics client
 
 Hosted account login, API-key minting, multitenancy, billing, hosted UI, and
