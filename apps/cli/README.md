@@ -14,6 +14,13 @@ AEOKIT_API_KEY=aeo_live_... \
 npx --yes @aeokit/cli@0.1.0 mcp
 ```
 
+The MCP server reads `${AEOKIT_URL}/openapi.json` at startup and turns every
+documented API operation into a namespaced tool. The API contract supplies the
+tool name, path parameters, description, and safety metadata, so MCP does not
+maintain a separate endpoint list. Requests use `Authorization: Bearer
+${AEOKIT_API_KEY}` when a key is configured; local mode can remain
+unauthenticated.
+
 Install it when you want a persistent `aeokit` command or the JavaScript
 client:
 

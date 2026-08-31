@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "apiVersion": "0.1.0",
+  "files": [
+    {
+      "source": "aeo-audit.md",
+      "destination": "skills/aeo-audit/api/aeokit.md",
+      "operations": [
+        "GET /api/projects",
+        "GET /api/projects/{projectId}",
+        "GET /api/projects/{projectId}/crawler-traffic/history",
+        "GET /api/projects/{projectId}/citations",
+        "GET /api/opportunities"
+      ]
+    },
+    {
+      "source": "aeo-improve.md",
+      "destination": "skills/aeo-improve/api/aeokit.md",
+      "operations": [
+        "GET /api/projects",
+        "GET /api/projects/{projectId}",
+        "GET /api/opportunities",
+        "PATCH /api/opportunities/{opportunityId}",
+        "GET /api/projects/{projectId}/citations"
+      ]
+    },
+    {
+      "source": "aeo-observe.md",
+      "destination": "skills/aeo-observe/api/aeokit.md",
+      "operations": [
+        "GET /api/projects",
+        "GET /api/projects/{projectId}/prompts",
+        "POST /api/prompts/{promptId}/run",
+        "GET /api/projects/{projectId}/runs",
+        "GET /api/runs/{runId}",
+        "GET /api/projects/{projectId}/visibility",
+        "GET /api/projects/{projectId}/citations"
+      ]
+    }
+  ]
+}

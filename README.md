@@ -112,8 +112,20 @@ AEOKIT_API_KEY=aeo_live_... \
 npx --yes @aeokit/cli@0.1.0 mcp
 ```
 
-It exposes health, project listing, and read-only API tools. Claude, Codex, and
-other MCP hosts can launch that command without a separate Aeokit login flow.
+At startup it reads the runtime's OpenAPI document and exposes every documented
+API operation as a namespaced MCP tool. Claude, Codex, and other MCP hosts gain
+new API operations without a second hand-maintained MCP route list. The API's
+OpenAPI metadata labels read-only, destructive, state-changing, and potentially
+cost-bearing operations; `aeokit_get` remains as a read-only compatibility
+escape hatch.
+
+API-specific guidance for the portable `aeokit-skills` plugin lives in
+`agent-skills/api-export`. Its manifest maps each source document to its
+packaged destination. Tests verify every recorded operation against AeoKit's
+generated OpenAPI document, so endpoint changes cannot silently leave the
+published guidance stale. The distribution repository imports this directory
+during release; end users install the complete Claude or Codex plugin from
+`aeokit-skills` and do not fetch these files at runtime.
 
 ## Provider configuration
 
