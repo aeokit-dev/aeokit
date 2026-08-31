@@ -418,6 +418,196 @@ function readField(
   return input.value;
 }
 
+export interface CrudTableModel {
+  columns: string[];
+  rows: Record<string, unknown>[];
+}
+
+export function createTableModel(data: unknown): CrudTableModel | null {
+  const collection = Array.isArray(data)
+    ? data
+    : data && typeof data === "object"
+      ? Object.values(data).find(Array.isArray)
+      : undefined;
+  if (!collection) return null;
+  const rows = collection.filter(
+    (row): row is Record<string, unknown> =>
+      Boolean(row) && typeof row === "object" && !Array.isArray(row),
+  );
+  const columns = [...new Set(rows.flatMap((row) => Object.keys(row)))].slice(
+    0,
+    8,
+  );
+  return { columns, rows };
+}
+
+function humanize(value: string): string {
+  return value
+    .replace(/[-_]+/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function operationLabel(operation: CrudOperation): string {
+  const withoutMethod = operation.summary.replace(
+    new RegExp(`^${operation.method}\\s+`, "i"),
+    "",
+  );
+  return withoutMethod === operation.path
+    ? humanize(operation.id)
+    : withoutMethod;
+}
+
+function displayValue(value: unknown): string {
+  if (value === null || value === undefined) return "—";
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+function renderResult(container: HTMLElement, result: CrudExecutionResult) {
+  container.replaceChildren();
+  const tableModel = createTableModel(result.data);
+  if (tableModel) {
+    const meta = document.createElement("p");
+    meta.className = "aeokit-crud__meta";
+    meta.textContent = `${tableModel.rows.length} record${tableModel.rows.length === 1 ? "" : "s"}`;
+    container.append(meta);
+    if (!tableModel.rows.length) {
+      const empty = document.createElement("div");
+      empty.className = "aeokit-crud__empty";
+      empty.textContent = "No records yet.";
+      container.append(empty);
+      return;
+    }
+    const scroller = document.createElement("div");
+    scroller.className = "aeokit-crud__table-scroll";
+    const table = document.createElement("table");
+    const head = document.createElement("thead");
+    const headingRow = document.createElement("tr");
+    for (const column of tableModel.columns) {
+      const cell = document.createElement("th");
+      cell.scope = "col";
+      cell.textContent = humanize(column);
+      headingRow.append(cell);
+    }
+    head.append(headingRow);
+    const body = document.createElement("tbody");
+    for (const row of tableModel.rows) {
+      const tableRow = document.createElement("tr");
+      for (const column of tableModel.columns) {
+        const cell = document.createElement("td");
+        const value = displayValue(row[column]);
+        cell.textContent = value;
+        cell.title = value;
+        tableRow.append(cell);
+      }
+      body.append(tableRow);
+    }
+    table.append(head, body);
+    scroller.append(table);
+    container.append(scroller);
+    return;
+  }
+  const output = document.createElement("pre");
+  output.textContent = `${result.status} ${result.statusText}\n${JSON.stringify(result.data, null, 2)}`;
+  container.append(output);
+}
+
+function createOperationForm(
+  operation: CrudOperation,
+  client: ReturnType<typeof createCrudClient>,
+  options: MountCrudUiOptions,
+  afterMutation: () => void,
+): HTMLDetailsElement {
+  const details = document.createElement("details");
+  details.className = "aeokit-crud__action";
+  if (operation.method === "POST" && !operation.parameters.length)
+    details.open = true;
+  const summary = document.createElement("summary");
+  const method = document.createElement("span");
+  method.className = `aeokit-crud__method aeokit-crud__method--${operation.method.toLowerCase()}`;
+  method.textContent = operation.method;
+  const label = document.createElement("span");
+  label.textContent = operationLabel(operation);
+  summary.append(method, label);
+  details.append(summary);
+  const form = document.createElement("form");
+  form.dataset.operationId = operation.id;
+  for (const parameter of operation.parameters) {
+    form.append(
+      inputForSchema(parameter.name, parameter.schema, parameter.required),
+    );
+  }
+  if (operation.bodySchema?.properties) {
+    const required = new Set(operation.bodySchema.required ?? []);
+    for (const [name, schema] of Object.entries(
+      operation.bodySchema.properties,
+    )) {
+      form.append(inputForSchema(name, schema, required.has(name)));
+    }
+  } else if (operation.bodySchema || operation.bodyContentType) {
+    form.append(
+      inputForSchema(
+        "$body",
+        { type: "object", title: "Request fields (JSON)" },
+        operation.bodyRequired,
+      ),
+    );
+  }
+  const submit = document.createElement("button");
+  submit.type = "submit";
+  submit.textContent = operation.destructive ? "Delete" : "Submit";
+  submit.className = operation.destructive
+    ? "aeokit-crud__button aeokit-crud__danger"
+    : "aeokit-crud__button aeokit-crud__button--primary";
+  const output = document.createElement("div");
+  output.className = "aeokit-crud__result";
+  output.setAttribute("aria-live", "polite");
+  form.append(submit, output);
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (
+      operation.destructive &&
+      !(await (options.confirmDestructive?.(operation) ??
+        globalThis.confirm?.(`Run ${operationLabel(operation)}?`) ??
+        false))
+    )
+      return;
+    submit.disabled = true;
+    output.textContent = "Working…";
+    try {
+      const values: Record<string, unknown> = {};
+      for (const field of form.querySelectorAll<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >("[data-field]"))
+        values[field.dataset.field!] = readField(field);
+      const body =
+        values.$body ??
+        (operation.bodySchema?.properties
+          ? Object.fromEntries(
+              Object.keys(operation.bodySchema.properties)
+                .filter((name) => values[name] !== undefined)
+                .map((name) => [name, values[name]]),
+            )
+          : undefined);
+      const result = await client.execute(operation, {
+        parameters: values,
+        ...(body !== undefined ? { body } : {}),
+      });
+      renderResult(output, result);
+      if (result.ok && operation.method !== "GET") afterMutation();
+    } catch (error) {
+      output.textContent =
+        error instanceof Error ? error.message : String(error);
+    } finally {
+      submit.disabled = false;
+    }
+  });
+  details.append(form);
+  return details;
+}
+
 /** Mounts a framework-independent operation UI. The host owns auth, navigation and styling. */
 export async function mountCrudUi(
   root: HTMLElement,
@@ -431,94 +621,118 @@ export async function mountCrudUi(
   const client = createCrudClient(options);
   root.classList.add("aeokit-crud");
   root.replaceChildren();
-  const heading = document.createElement("h1");
-  heading.textContent = options.title ?? model.title;
-  root.append(heading);
+  const shell = document.createElement("div");
+  shell.className = "aeokit-crud__shell";
+  const sidebar = document.createElement("aside");
+  sidebar.className = "aeokit-crud__sidebar";
+  const brand = document.createElement("div");
+  brand.className = "aeokit-crud__brand";
+  brand.textContent = options.title ?? "Data manager";
+  const navigation = document.createElement("nav");
+  navigation.setAttribute("aria-label", "Resources");
+  sidebar.append(brand, navigation);
+  const content = document.createElement("main");
+  content.className = "aeokit-crud__content";
+  shell.append(sidebar, content);
+  root.append(shell);
+
+  const preferred =
+    model.groups.find((group) => group.name.toLowerCase() === "projects") ??
+    model.groups.find((group) =>
+      group.operations.some((operation) => operation.method === "POST"),
+    ) ??
+    model.groups[0];
+  let activeGroup = preferred;
+  let disposed = false;
+
+  const renderGroup = (group: CrudGroup) => {
+    activeGroup = group;
+    for (const button of navigation.querySelectorAll("button")) {
+      button.classList.toggle("is-active", button.dataset.group === group.name);
+    }
+    content.replaceChildren();
+    const header = document.createElement("header");
+    header.className = "aeokit-crud__header";
+    const titles = document.createElement("div");
+    const eyebrow = document.createElement("p");
+    eyebrow.textContent = "Resource";
+    const heading = document.createElement("h1");
+    heading.textContent = humanize(group.name);
+    titles.append(eyebrow, heading);
+    header.append(titles);
+    content.append(header);
+
+    const collectionOperation = [...group.operations]
+      .filter(
+        (operation) =>
+          operation.method === "GET" &&
+          !operation.parameters.some(
+            (parameter) => parameter.location === "path" && parameter.required,
+          ),
+      )
+      .sort((left, right) => left.path.length - right.path.length)[0];
+    const collectionResult = document.createElement("section");
+    collectionResult.className = "aeokit-crud__card";
+    const collectionHeader = document.createElement("div");
+    collectionHeader.className = "aeokit-crud__card-header";
+    const collectionTitle = document.createElement("h2");
+    collectionTitle.textContent = "Records";
+    const refresh = document.createElement("button");
+    refresh.className = "aeokit-crud__button";
+    refresh.type = "button";
+    refresh.textContent = "Refresh";
+    collectionHeader.append(collectionTitle, refresh);
+    const records = document.createElement("div");
+    records.className = "aeokit-crud__result";
+    collectionResult.append(collectionHeader, records);
+    if (collectionOperation) content.append(collectionResult);
+
+    const loadCollection = async () => {
+      if (!collectionOperation) return;
+      refresh.disabled = true;
+      records.textContent = "Loading records…";
+      try {
+        const result = await client.execute(collectionOperation);
+        if (!disposed && activeGroup === group) renderResult(records, result);
+      } catch (error) {
+        records.textContent =
+          error instanceof Error ? error.message : String(error);
+      } finally {
+        refresh.disabled = false;
+      }
+    };
+    refresh.addEventListener("click", loadCollection);
+
+    const actions = group.operations.filter(
+      (operation) => operation !== collectionOperation,
+    );
+    if (actions.length) {
+      const actionSection = document.createElement("section");
+      actionSection.className = "aeokit-crud__actions";
+      const actionHeading = document.createElement("h2");
+      actionHeading.textContent = "Forms & actions";
+      actionSection.append(actionHeading);
+      for (const operation of actions) {
+        actionSection.append(
+          createOperationForm(operation, client, options, loadCollection),
+        );
+      }
+      content.append(actionSection);
+    }
+    void loadCollection();
+  };
 
   for (const group of model.groups) {
-    const section = document.createElement("section");
-    const groupHeading = document.createElement("h2");
-    groupHeading.textContent = group.name;
-    section.append(groupHeading);
-    for (const operation of group.operations) {
-      const details = document.createElement("details");
-      const summary = document.createElement("summary");
-      summary.textContent = `${operation.method} ${operation.summary}`;
-      details.append(summary);
-      const form = document.createElement("form");
-      form.dataset.operationId = operation.id;
-      for (const parameter of operation.parameters) {
-        form.append(
-          inputForSchema(parameter.name, parameter.schema, parameter.required),
-        );
-      }
-      if (operation.bodySchema?.properties) {
-        const required = new Set(operation.bodySchema.required ?? []);
-        for (const [name, schema] of Object.entries(
-          operation.bodySchema.properties,
-        )) {
-          form.append(inputForSchema(name, schema, required.has(name)));
-        }
-      } else if (operation.bodySchema || operation.bodyContentType) {
-        form.append(
-          inputForSchema(
-            "$body",
-            { type: "object", title: "JSON body" },
-            operation.bodyRequired,
-          ),
-        );
-      }
-      const submit = document.createElement("button");
-      submit.type = "submit";
-      submit.textContent = operation.destructive
-        ? "Run destructive action"
-        : "Run";
-      if (operation.destructive) submit.className = "aeokit-crud__danger";
-      const output = document.createElement("pre");
-      output.setAttribute("aria-live", "polite");
-      form.append(submit, output);
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (
-          operation.destructive &&
-          !(await (options.confirmDestructive?.(operation) ??
-            globalThis.confirm?.(`Run ${operation.summary}?`) ??
-            false))
-        )
-          return;
-        submit.disabled = true;
-        output.textContent = "Loading…";
-        try {
-          const values: Record<string, unknown> = {};
-          for (const field of form.querySelectorAll<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-          >("[data-field]"))
-            values[field.dataset.field!] = readField(field);
-          const body =
-            values.$body ??
-            (operation.bodySchema?.properties
-              ? Object.fromEntries(
-                  Object.keys(operation.bodySchema.properties)
-                    .filter((name) => values[name] !== undefined)
-                    .map((name) => [name, values[name]]),
-                )
-              : undefined);
-          const result = await client.execute(operation, {
-            parameters: values,
-            ...(body !== undefined ? { body } : {}),
-          });
-          output.textContent = `${result.status} ${result.statusText}\n${JSON.stringify(result.data, null, 2)}`;
-        } catch (error) {
-          output.textContent =
-            error instanceof Error ? error.message : String(error);
-        } finally {
-          submit.disabled = false;
-        }
-      });
-      details.append(form);
-      section.append(details);
-    }
-    root.append(section);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.group = group.name;
+    button.textContent = humanize(group.name);
+    button.addEventListener("click", () => renderGroup(group));
+    navigation.append(button);
   }
-  return () => root.replaceChildren();
+  if (preferred) renderGroup(preferred);
+  return () => {
+    disposed = true;
+    root.replaceChildren();
+  };
 }

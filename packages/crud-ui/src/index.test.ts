@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createCrudClient,
   createCrudModel,
+  createTableModel,
   loadCrudModel,
   mountCrudUi,
   type OpenApiDocument,
@@ -140,18 +141,48 @@ describe("CRUD API client", () => {
   });
 });
 
-describe("mounted CRUD UI", () => {
-  it("renders discovered operations and typed schema fields", async () => {
-    const root = document.createElement("main");
-    const fetchFn = vi.fn<typeof fetch>().mockResolvedValue(
-      new Response(JSON.stringify(apiDocument), {
-        headers: { "content-type": "application/json" },
+describe("CRUD table model", () => {
+  it("unwraps collection responses and chooses useful columns", () => {
+    expect(
+      createTableModel({
+        projects: [
+          { id: "project-1", name: "Acme", archivedAt: null },
+          { id: "project-2", name: "Beta", archivedAt: "2026-08-01" },
+        ],
       }),
-    );
+    ).toEqual({
+      columns: ["id", "name", "archivedAt"],
+      rows: [
+        { id: "project-1", name: "Acme", archivedAt: null },
+        { id: "project-2", name: "Beta", archivedAt: "2026-08-01" },
+      ],
+    });
+  });
+});
+
+describe("mounted CRUD UI", () => {
+  it("renders resource navigation, a collection table, and focused forms", async () => {
+    const root = document.createElement("main");
+    const fetchFn = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(apiDocument), {
+          headers: { "content-type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ projects: [{ id: "project-1", name: "Acme" }] }),
+          { headers: { "content-type": "application/json" } },
+        ),
+      );
 
     const unmount = await mountCrudUi(root, { fetchFn });
+    await vi.waitFor(() => expect(root.querySelector("tbody")).not.toBeNull());
 
-    expect(root.querySelectorAll("form")).toHaveLength(3);
+    expect(root.querySelector('[aria-label="Resources"]')).not.toBeNull();
+    expect(root.textContent).toContain("Acme");
+    expect(root.querySelectorAll("form")).toHaveLength(2);
     expect(root.querySelector('[data-field="name"]')).toBeInstanceOf(
       HTMLInputElement,
     );
@@ -161,7 +192,12 @@ describe("mounted CRUD UI", () => {
     expect(
       root.querySelector('[data-operation-id="deleteProject"] button')
         ?.textContent,
-    ).toContain("destructive");
+    ).toBe("Delete");
+    expect(
+      root
+        .querySelector('[data-operation-id="deleteProject"] button')
+        ?.classList.contains("aeokit-crud__danger"),
+    ).toBe(true);
 
     unmount();
     expect(root.childElementCount).toBe(0);
