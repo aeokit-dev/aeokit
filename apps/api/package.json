@@ -14,7 +14,7 @@
   "dependencies": {
     "@aeokit/cli": "workspace:*",
     "@aeokit/auth": "workspace:*",
-    "@hono/node-server": "^1.19.1",
+    "@hono/node-server": "^2.1.1",
     "@hono/zod-validator": "^0.7.6",
     "@aeokit/cloudflare-analytics": "workspace:*",
     "@aeokit/core": "workspace:*",
