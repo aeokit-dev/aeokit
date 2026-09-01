@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 96" role="img" aria-labelledby="title desc">
+  <title id="title">aeokit.dev</title>
+  <desc id="desc">The aeokit domain wordmark with a modular K symbol.</desc>
+  <defs>
+    <mask id="open-joint" maskUnits="userSpaceOnUse" x="16" y="16" width="64" height="64">
+      <rect x="16" y="16" width="64" height="64" fill="white"/>
+      <circle cx="38" cy="48" r="5" fill="black"/>
+    </mask>
+  </defs>
+  <g mask="url(#open-joint)" fill="none" stroke-linecap="round" stroke-width="10">
+    <path d="M31 24V72" stroke="#111318"/>
+    <path d="M40 45.5L63 25" stroke="#5263D8"/>
+    <path d="M40 50.5L63 71" stroke="#5263D8"/>
+  </g>
+  <text x="91" y="66" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="52" font-weight="650" letter-spacing="-2.6">
+    <tspan fill="#111318">aeo</tspan><tspan fill="#5263D8">kit</tspan><tspan fill="#7B808C" font-weight="500" letter-spacing="-1.7">.dev</tspan>
+  </text>
+</svg>

@@ -1,0 +1,311 @@
+@import "tailwindcss";
+
+@theme {
+  --container-8xl: 88rem;
+}
+
+@plugin "daisyui" {
+  exclude: properties;
+}
+
+@plugin "daisyui/theme" {
+  name: "openaeo";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0 0);
+  --color-base-300: oklch(92% 0 0);
+  --color-base-content: oklch(20% 0 0);
+  --color-primary: oklch(50% 0.12 262);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(55% 0.15 145);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(50% 0.12 262);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(25% 0 0);
+  --color-neutral-content: oklch(100% 0 0);
+  --color-info: oklch(70% 0.15 230);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(65% 0.18 145);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(80% 0.15 80);
+  --color-warning-content: oklch(20% 0 0);
+  --color-error: oklch(65% 0.2 25);
+  --color-error-content: oklch(100% 0 0);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "openaeo-dark";
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: oklch(18% 0 0);
+  --color-base-200: oklch(12% 0 0);
+  --color-base-300: oklch(27% 0 0);
+  --color-base-content: oklch(92% 0 0);
+  --color-primary: oklch(66% 0.12 262);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(60% 0.15 145);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(66% 0.12 262);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(85% 0 0);
+  --color-neutral-content: oklch(20% 0 0);
+  --color-info: oklch(70% 0.15 230);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(65% 0.18 145);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(80% 0.15 80);
+  --color-warning-content: oklch(20% 0 0);
+  --color-error: oklch(65% 0.2 25);
+  --color-error-content: oklch(100% 0 0);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+:root {
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+html,
+body {
+  @apply bg-base-200 text-base-content;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  @apply text-base;
+}
+
+[data-theme="openaeo-dark"] .brand-logo-light {
+  display: none;
+}
+
+[data-theme="openaeo-dark"] .brand-logo-dark {
+  display: block;
+}
+
+.input:focus,
+.input:focus-visible,
+.textarea:focus,
+.textarea:focus-visible,
+.select:focus,
+.select:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: color-mix(in oklab, var(--color-primary) 10%, transparent);
+}
+
+.tabs-border > .tab.tab-active::before {
+  --tab-border-color: var(--color-primary);
+}
+
+.metric-card {
+  @apply rounded-xl border border-base-300 bg-base-100 p-4;
+}
+
+.data-panel {
+  @apply overflow-hidden rounded-xl border border-base-300 bg-base-100;
+}
+
+.page-shell {
+  @apply mx-auto w-full max-w-7xl px-4 py-5 sm:px-5 md:px-6 md:py-7;
+}
+
+.page-heading {
+  @apply text-2xl font-semibold tracking-tight text-base-content;
+}
+
+.subtle-label {
+  @apply text-xs font-semibold uppercase tracking-wider text-base-content/40;
+}
+
+.marketing-page {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.marketing-display {
+  font-size: clamp(40px, 6.5vw, 72px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.marketing-subhead {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.markdown-answer {
+  overflow-wrap: anywhere;
+}
+
+.markdown-answer > :first-child {
+  margin-top: 0;
+}
+
+.markdown-answer > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-answer :where(h1, h2, h3, h4) {
+  @apply mb-2 mt-5 font-semibold tracking-tight text-base-content;
+}
+
+.markdown-answer h1 {
+  @apply text-base;
+}
+
+.markdown-answer :where(h2, h3, h4) {
+  @apply text-sm;
+}
+
+.markdown-answer p {
+  @apply my-2 leading-relaxed;
+}
+
+.markdown-answer :where(ul, ol) {
+  @apply my-2 space-y-1 pl-5;
+}
+
+.markdown-answer ul {
+  list-style: disc;
+}
+
+.markdown-answer ol {
+  list-style: decimal;
+}
+
+.markdown-answer a {
+  @apply font-medium text-primary underline decoration-primary/35 underline-offset-2 hover:decoration-primary;
+}
+
+.markdown-answer .markdown-favicon {
+  @apply mx-1 inline-block size-4 rounded-sm object-contain;
+  vertical-align: -0.125em;
+}
+
+.markdown-answer .markdown-image {
+  @apply my-3 block h-auto max-h-64 max-w-full rounded-lg border border-base-300 bg-base-100 object-contain;
+}
+
+.markdown-answer blockquote {
+  @apply my-2 border-l-2 border-base-300 pl-3 text-base-content/80 italic;
+}
+
+.markdown-answer code {
+  @apply rounded bg-base-300/60 px-1 py-0.5 font-mono text-xs;
+}
+
+.markdown-answer pre {
+  @apply my-2 overflow-x-auto rounded-lg bg-base-300/45 p-3 font-mono text-xs;
+}
+
+.markdown-answer pre code {
+  @apply bg-transparent p-0;
+}
+
+.markdown-answer table {
+  @apply my-3 w-full border-collapse text-left;
+}
+
+.markdown-answer :where(th, td) {
+  @apply border border-base-300 px-2 py-1.5 align-top;
+}
+
+.markdown-answer th {
+  @apply bg-base-200 font-semibold;
+}
+
+.table :where(th) {
+  @apply bg-base-200/60;
+}
+
+.status-dot {
+  @apply inline-block size-2 rounded-full;
+}
+
+:where(a, button, [role="button"]):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 39.999rem) {
+  .page-actions > * {
+    width: 100%;
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0.5rem) + 0.5rem);
+  }
+}
+@keyframes webmcp-highlight-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px
+      color-mix(in oklab, var(--color-primary) 20%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 7px
+      color-mix(in oklab, var(--color-primary) 8%, transparent);
+  }
+}
+
+.webmcp-highlight {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  animation: webmcp-highlight-pulse 900ms ease-in-out 3;
+}

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#5263d8" />
+    <script>
+      (() => {
+        try {
+          const preference = localStorage.getItem("theme-preference");
+          const dark =
+            preference === "dark" ||
+            (preference !== "light" &&
+              matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.dataset.theme = dark
+            ? "openaeo-dark"
+            : "openaeo";
+        } catch {
+          document.documentElement.dataset.theme = "openaeo";
+        }
+      })();
+    </script>
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="description"
+      content="Track how AI answer engines describe, mention, and cite your brand."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="aeokit" />
+    <meta property="og:title" content="aeokit — AI visibility tracking" />
+    <meta
+      property="og:description"
+      content="Track how AI answer engines describe, mention, and cite your brand."
+    />
+    <meta property="og:url" content="https://aeokit.dev/" />
+    <meta property="og:image" content="https://aeokit.dev/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="aeokit — AI visibility tracking" />
+    <meta
+      name="twitter:description"
+      content="Track how AI answer engines describe, mention, and cite your brand."
+    />
+    <meta name="twitter:image" content="https://aeokit.dev/og.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/brand/final-v1/aeokit-app-icon.svg"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/brand/final-v1/aeokit-favicon-32.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/brand/final-v1/aeokit-apple-touch-icon.png"
+    />
+    <title>aeokit — AI visibility tracking</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
