@@ -16,7 +16,7 @@ async function mcpPayload(response: Response) {
 }
 
 describe("headless runtime", () => {
-  it("exposes runtime metadata as JSON instead of serving a web UI", async () => {
+  it("exposes runtime metadata with its bundled local console", async () => {
     const response = await createRuntimeApp().request("http://localhost/");
 
     expect(response.status).toBe(200);
@@ -29,17 +29,38 @@ describe("headless runtime", () => {
       docs: "/docs",
       openapi: "/openapi.json",
       mcp: "/api/mcp",
+      ui: "/app",
     });
   });
 
-  it("returns JSON for unknown routes and never falls back to index.html", async () => {
+  it("serves the bundled local console without hosted account features", async () => {
+    const response = await createRuntimeApp().request("http://localhost/app");
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/html");
+    const html = await response.text();
+    expect(html).toContain("AEOkit runtime");
+    expect(html).toContain("Audit once. Observe continuously.");
+    expect(html).not.toContain("Billing");
+    expect(html).not.toContain("Sign in");
+  });
+
+  it("serves a project-level experiment workflow from the public runtime", async () => {
     const response = await createRuntimeApp().request(
-      "http://localhost/app/brands/example",
+      "http://localhost/app/projects/00000000-0000-4000-8000-000000000001/experiments",
     );
 
-    expect(response.status).toBe(404);
-    expect(response.headers.get("content-type")).toContain("application/json");
-    await expect(response.json()).resolves.toEqual({ error: "Not found" });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toContain("text/html");
+    const html = await response.text();
+    expect(html).toContain("Experiments");
+    expect(html).toContain("Create experiment");
+    expect(html).toContain("Baseline run IDs");
+    expect(html).toContain("Follow-up run IDs");
+    expect(html).toContain("Change reference");
+    expect(html).toContain("won");
+    expect(html).not.toContain("Billing");
+    expect(html).not.toContain("Organization");
   });
 
   it("keeps local mode login-free and gates opt-in self-hosted mode", async () => {

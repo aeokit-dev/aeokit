@@ -434,6 +434,68 @@ export const opportunities = pgTable(
   ],
 );
 
+export const experiments = pgTable(
+  "experiments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    opportunityId: uuid("opportunity_id").references(() => opportunities.id, {
+      onDelete: "set null",
+    }),
+    name: text("name").notNull(),
+    hypothesis: text("hypothesis").notNull(),
+    status: text("status")
+      .$type<
+        | "planned"
+        | "running"
+        | "evaluating"
+        | "won"
+        | "lost"
+        | "inconclusive"
+        | "cancelled"
+      >()
+      .notNull()
+      .default("planned"),
+    changedUrls: jsonb("changed_urls").$type<string[]>().notNull().default([]),
+    changeRef: text("change_ref"),
+    baselineRunIds: jsonb("baseline_run_ids")
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    followupRunIds: jsonb("followup_run_ids")
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    baselineMetrics: jsonb("baseline_metrics")
+      .$type<Record<string, number>>()
+      .notNull()
+      .default({}),
+    resultMetrics: jsonb("result_metrics")
+      .$type<Record<string, number>>()
+      .notNull()
+      .default({}),
+    evaluationDueAt: timestamp("evaluation_due_at", { withTimezone: true }),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("experiments_project_created_idx").on(
+      table.projectId,
+      table.createdAt,
+    ),
+    index("experiments_opportunity_idx").on(table.opportunityId),
+    index("experiments_project_status_idx").on(table.projectId, table.status),
+  ],
+);
+
 export const crawlerTrafficDaily = pgTable(
   "crawler_traffic_daily",
   {
@@ -478,5 +540,6 @@ export type PromptRun = typeof promptRuns.$inferSelect;
 export type Citation = typeof citations.$inferSelect;
 export type Claim = typeof claims.$inferSelect;
 export type Opportunity = typeof opportunities.$inferSelect;
+export type Experiment = typeof experiments.$inferSelect;
 export type WorkerHeartbeat = typeof workerHeartbeats.$inferSelect;
 export type CrawlerTrafficDaily = typeof crawlerTrafficDaily.$inferSelect;

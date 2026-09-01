@@ -18,6 +18,7 @@ import {
   competitors,
   crawlerTrafficDaily,
   db,
+  experiments,
   opportunities,
   projects,
   reportAuditEvents,
@@ -488,6 +489,39 @@ const opportunityStatusInput = z.enum([
   "resolved",
   "dismissed",
 ]);
+const experimentStatusInput = z.enum([
+  "planned",
+  "running",
+  "evaluating",
+  "won",
+  "lost",
+  "inconclusive",
+  "cancelled",
+]);
+const metricMapInput = z.record(
+  z.string().min(1).max(100),
+  z.number().finite(),
+);
+export const experimentCreateInput = z.object({
+  opportunityId: z.string().uuid().nullable().optional(),
+  name: z.string().trim().min(1).max(200),
+  hypothesis: z.string().trim().min(1).max(4_000),
+  changedUrls: z.array(z.string().url()).max(100).default([]),
+  changeRef: z.string().trim().max(500).nullable().optional(),
+  baselineRunIds: z.array(z.string().uuid()).max(500).default([]),
+  baselineMetrics: metricMapInput.default({}),
+  evaluationDueAt: z.string().datetime().nullable().optional(),
+});
+export const experimentUpdateInput = z
+  .object({
+    status: experimentStatusInput.optional(),
+    changedUrls: z.array(z.string().url()).max(100).optional(),
+    changeRef: z.string().trim().max(500).nullable().optional(),
+    followupRunIds: z.array(z.string().uuid()).max(500).optional(),
+    resultMetrics: metricMapInput.optional(),
+    evaluationDueAt: z.string().datetime().nullable().optional(),
+  })
+  .strict();
 export const opportunityUpdateInput = z
   .object({
     status: opportunityStatusInput.optional(),
@@ -966,6 +1000,69 @@ export function createApiRoutes() {
       })),
     });
   });
+
+  api.get("/projects/:projectId/experiments", async (context) => {
+    const rows = await db
+      .select()
+      .from(experiments)
+      .where(eq(experiments.projectId, context.req.param("projectId")))
+      .orderBy(desc(experiments.createdAt));
+    return context.json({ experiments: rows });
+  });
+
+  api.post(
+    "/projects/:projectId/experiments",
+    zValidator("json", experimentCreateInput),
+    async (context) => {
+      const input = context.req.valid("json");
+      const [experiment] = await db
+        .insert(experiments)
+        .values({
+          projectId: context.req.param("projectId"),
+          ...input,
+          opportunityId: input.opportunityId ?? null,
+          changeRef: input.changeRef ?? null,
+          evaluationDueAt: input.evaluationDueAt
+            ? new Date(input.evaluationDueAt)
+            : null,
+        })
+        .returning();
+      return context.json({ experiment }, 201);
+    },
+  );
+
+  api.patch(
+    "/experiments/:experimentId",
+    zValidator("json", experimentUpdateInput),
+    async (context) => {
+      const input = context.req.valid("json");
+      const { evaluationDueAt, ...fields } = input;
+      const now = new Date();
+      const terminal = ["won", "lost", "inconclusive", "cancelled"].includes(
+        input.status ?? "",
+      );
+      const [experiment] = await db
+        .update(experiments)
+        .set({
+          ...fields,
+          ...(evaluationDueAt !== undefined
+            ? {
+                evaluationDueAt: evaluationDueAt
+                  ? new Date(evaluationDueAt)
+                  : null,
+              }
+            : {}),
+          ...(input.status === "running" ? { startedAt: now } : {}),
+          ...(terminal ? { completedAt: now } : {}),
+          updatedAt: now,
+        })
+        .where(eq(experiments.id, context.req.param("experimentId")))
+        .returning();
+      if (!experiment)
+        return context.json({ error: "Experiment not found" }, 404);
+      return context.json({ experiment });
+    },
+  );
 
   api.patch("/opportunities/:opportunityId", async (context) => {
     const opportunityId = context.req.param("opportunityId");

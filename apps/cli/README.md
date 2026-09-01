@@ -2,6 +2,17 @@
 
 Use the Aeokit API from a terminal or expose it as an MCP stdio server.
 
+The lifecycle commands are `audit`, `context`, `opportunities`, `experiments`,
+`experiment create`, `experiment evaluate`, and `observe`. Because observation
+queues enabled provider prompts, it requires explicit `--confirm-cost`.
+
+```sh
+aeokit audit PROJECT_ID
+aeokit observe PROJECT_ID --confirm-cost
+aeokit experiment create PROJECT_ID --data '{"name":"Improve evidence","hypothesis":"A sourced comparison increases citations."}'
+aeokit experiment evaluate EXPERIMENT_ID --data '{"status":"inconclusive"}'
+```
+
 ```sh
 npx --yes @aeokit/cli@0.1.0 health
 
