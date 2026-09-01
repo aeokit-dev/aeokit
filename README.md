@@ -112,6 +112,10 @@ AEOKIT_API_KEY=aeo_live_... \
 npx --yes @aeokit/cli@0.1.0 mcp
 ```
 
+ACP and other remote MCP clients can instead use the runtime's Streamable HTTP
+endpoint at `https://<aeokit-runtime>/api/mcp`, passing the same API key in the
+`Authorization: Bearer ...` header.
+
 At startup it reads the runtime's OpenAPI document and exposes every documented
 API operation as a namespaced MCP tool. Claude, Codex, and other MCP hosts gain
 new API operations without a second hand-maintained MCP route list. The API's
@@ -126,6 +130,10 @@ generated OpenAPI document, so endpoint changes cannot silently leave the
 published guidance stale. The distribution repository imports this directory
 during release; end users install the complete Claude or Codex plugin from
 `aeokit-skills` and do not fetch these files at runtime.
+
+Native agent integrations can reuse the same validated operation catalog; see
+[AeoKit agent tool integration](docs/AEOKIT_AGENT_INTEGRATION.md) for the exact
+input, execution, and safety contract.
 
 ## Provider configuration
 
