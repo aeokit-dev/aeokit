@@ -9,6 +9,8 @@ import {
   createAeokitMcpHttpHandler,
   type OpenApiDocument,
 } from "@aeokit/cli/mcp";
+import { localConsoleHtml } from "./local-ui";
+import { experimentsConsoleHtml } from "./experiments-ui";
 
 export type RuntimeAuthConfig =
   { mode: "none" } | { mode: "api-key"; keyHashes: readonly string[] };
@@ -88,6 +90,10 @@ export function createRuntimeApp(options: { auth?: RuntimeAuthConfig } = {}) {
     context.json(createOpenApiDocument(app.routes)),
   );
   app.get("/docs", (context) => context.html(apiReferenceHtml()));
+  app.get("/app", (context) => context.html(localConsoleHtml()));
+  app.get("/app/projects/:projectId/experiments", (context) =>
+    context.html(experimentsConsoleHtml(context.req.param("projectId"))),
+  );
   app.get("/", (context) =>
     context.json({
       name: "aeokit",
@@ -97,6 +103,7 @@ export function createRuntimeApp(options: { auth?: RuntimeAuthConfig } = {}) {
       docs: "/docs",
       openapi: "/openapi.json",
       mcp: "/api/mcp",
+      ui: "/app",
     }),
   );
   app.notFound((context) => context.json({ error: "Not found" }, 404));

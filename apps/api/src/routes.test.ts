@@ -5,6 +5,8 @@ import {
   competitorInput,
   competitorDiscoverySettingsInput,
   opportunityUpdateInput,
+  experimentCreateInput,
+  experimentUpdateInput,
   promptUpdateInput,
 } from "./routes";
 
@@ -128,6 +130,28 @@ describe("opportunityUpdateInput", () => {
     ).toBe(false);
     expect(
       opportunityUpdateInput.safeParse({ completedActionIndices: [4] }).success,
+    ).toBe(false);
+  });
+});
+
+describe("experiment inputs", () => {
+  it("records a baseline and a bounded evaluation outcome", () => {
+    expect(
+      experimentCreateInput.safeParse({
+        name: "Improve evidence",
+        hypothesis: "A sourced comparison will increase citations.",
+        changedUrls: ["https://example.com/compare"],
+        baselineMetrics: { citationRate: 0.2 },
+      }).success,
+    ).toBe(true);
+    expect(
+      experimentUpdateInput.safeParse({
+        status: "won",
+        resultMetrics: { citationRate: 0.5 },
+      }).success,
+    ).toBe(true);
+    expect(
+      experimentUpdateInput.safeParse({ status: "successful" }).success,
     ).toBe(false);
   });
 });

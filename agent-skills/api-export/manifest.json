@@ -10,7 +10,8 @@
         "GET /api/projects/{projectId}",
         "GET /api/projects/{projectId}/crawler-traffic/history",
         "GET /api/projects/{projectId}/citations",
-        "GET /api/opportunities"
+        "GET /api/opportunities",
+        "GET /api/projects/{projectId}/experiments"
       ]
     },
     {
@@ -21,7 +22,10 @@
         "GET /api/projects/{projectId}",
         "GET /api/opportunities",
         "PATCH /api/opportunities/{opportunityId}",
-        "GET /api/projects/{projectId}/citations"
+        "GET /api/projects/{projectId}/citations",
+        "GET /api/projects/{projectId}/experiments",
+        "POST /api/projects/{projectId}/experiments",
+        "PATCH /api/experiments/{experimentId}"
       ]
     },
     {
@@ -34,7 +38,9 @@
         "GET /api/projects/{projectId}/runs",
         "GET /api/runs/{runId}",
         "GET /api/projects/{projectId}/visibility",
-        "GET /api/projects/{projectId}/citations"
+        "GET /api/projects/{projectId}/citations",
+        "GET /api/projects/{projectId}/experiments",
+        "PATCH /api/experiments/{experimentId}"
       ]
     }
   ]

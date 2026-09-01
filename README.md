@@ -22,6 +22,12 @@ citations, mentions, and crawler traffic to follow a source from publication to
 its first appearance in an AI answer—and keep the evidence behind every
 result.
 
+The canonical agent lifecycle is:
+
+```text
+audit -> observe baseline -> improve -> record experiment -> observe again -> evaluate
+```
+
 ```text
 publish -> AI crawler visit -> first mention -> first citation
 ```
@@ -44,6 +50,8 @@ docker compose -p openaeo up -d --build app worker
 
 Then open or query:
 
+- Local runtime console: <http://127.0.0.1:3000/app>
+- Project experiments: `http://127.0.0.1:3000/app/projects/<project-id>/experiments`
 - Runtime metadata: <http://127.0.0.1:3000/>
 - Interactive API docs: <http://127.0.0.1:3000/docs>
 - OpenAPI 3.1: <http://127.0.0.1:3000/openapi.json>
@@ -165,7 +173,8 @@ plane. A hosted client authenticates with a bearer API key; local mode remains
 login-free.
 
 See [Architecture](docs/ARCHITECTURE.md), [Security](SECURITY.md), and
-[Contributing](CONTRIBUTING.md).
+[Contributing](CONTRIBUTING.md). The [agent optimization workflow](docs/AGENT_OPTIMIZATION_WORKFLOW.md)
+shows the complete audit-to-evaluation lifecycle.
 
 ## Commands
 
