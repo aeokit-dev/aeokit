@@ -15,7 +15,7 @@ COPY packages/db/package.json packages/db/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm --filter @aeokit/web build && pnpm --filter @aeokit/cli build && pnpm --filter @aeokit/api build && pnpm --filter @aeokit/worker build
+RUN pnpm --filter @aeokit/product-ui build && pnpm --filter @aeokit/cli build && pnpm --filter @aeokit/api build && pnpm --filter @aeokit/worker build
 
 FROM node:24-slim AS runtime
 

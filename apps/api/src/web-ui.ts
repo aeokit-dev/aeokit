@@ -50,7 +50,7 @@ export async function serveProductUi(context: Context) {
   return context.json(
     {
       error:
-        "The product UI has not been built. Run pnpm --filter @aeokit/web build.",
+        "The product UI has not been built. Run pnpm --filter @aeokit/product-ui build.",
     },
     503,
   );

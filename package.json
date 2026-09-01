@@ -29,7 +29,7 @@
     "start": "dotenv -e .env -- concurrently -n api,worker -c green,magenta \"pnpm --filter @aeokit/api start\" \"pnpm --filter @aeokit/worker start\"",
     "build": "pnpm -r build",
     "typecheck": "tsc -p tsconfig.scripts.json && pnpm -r typecheck",
-    "test": "pnpm --filter @aeokit/web build && vitest run scripts/*.test.ts && pnpm -r --if-present test",
+    "test": "pnpm --filter @aeokit/product-ui build && vitest run scripts/*.test.ts && pnpm -r --if-present test",
     "db:migrate": "pnpm --filter @aeokit/db migrate",
     "db:seed": "pnpm --filter @aeokit/db seed",
     "env:link": "sh scripts/link-env.sh",
