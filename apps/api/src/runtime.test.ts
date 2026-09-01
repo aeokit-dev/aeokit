@@ -147,14 +147,14 @@ describe("headless runtime", () => {
         jsonrpc: "2.0",
         id: 3,
         method: "tools/call",
-        params: { name: "aeokit_health", arguments: {} },
+        params: { name: "aeokit_getConfig", arguments: {} },
       }),
     });
     expect(called.status).toBe(200);
     await expect(mcpPayload(called)).resolves.toMatchObject({
       id: 3,
       result: {
-        structuredContent: { ok: true, service: "aeokit-runtime" },
+        structuredContent: { showProviderCosts: expect.any(Boolean) },
       },
     });
   });
