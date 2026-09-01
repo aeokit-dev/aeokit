@@ -40,7 +40,7 @@ aeokit experiment create PROJECT_ID --data '{
 }'
 ```
 
-The same workflow is available in the bundled UI at `/app/projects/<project-id>/experiments`. Record the deployed URL or commit reference, not merely a local filename.
+The same workflow is available in the bundled UI at `/app/brands/<project-id>/experiments`. Record the deployed URL or commit reference, not merely a local filename.
 
 ## 4. Re-observe independently
 

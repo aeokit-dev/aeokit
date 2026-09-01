@@ -33,34 +33,37 @@ describe("headless runtime", () => {
     });
   });
 
-  it("serves the bundled local console without hosted account features", async () => {
+  it("serves the complete bundled product UI without hosted account features", async () => {
     const response = await createRuntimeApp().request("http://localhost/app");
 
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/html");
     const html = await response.text();
-    expect(html).toContain("AEOkit runtime");
-    expect(html).toContain("Audit once. Observe continuously.");
+    expect(html).toContain('<div id="root"></div>');
+    expect(html).toMatch(/\/app\/assets\/[^"']+\.js/);
     expect(html).not.toContain("Billing");
     expect(html).not.toContain("Sign in");
   });
 
-  it("serves a project-level experiment workflow from the public runtime", async () => {
+  it("serves full dashboard routes through the public runtime SPA", async () => {
     const response = await createRuntimeApp().request(
-      "http://localhost/app/projects/00000000-0000-4000-8000-000000000001/experiments",
+      "http://localhost/app/brands/00000000-0000-4000-8000-000000000001/experiments",
     );
 
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toContain("text/html");
     const html = await response.text();
-    expect(html).toContain("Experiments");
-    expect(html).toContain("Create experiment");
-    expect(html).toContain("Baseline run IDs");
-    expect(html).toContain("Follow-up run IDs");
-    expect(html).toContain("Change reference");
-    expect(html).toContain("won");
+    expect(html).toContain('<div id="root"></div>');
+    const asset = html.match(/(\/app\/assets\/[^"']+\.js)/)?.[1];
+    expect(asset).toBeTruthy();
+    const bundle = await createRuntimeApp().request(`http://localhost${asset}`);
+    expect(bundle.status).toBe(200);
+    const javascript = await bundle.text();
+    expect(javascript).toContain("Experiments");
+    expect(javascript).toContain("Create experiment");
+    expect(javascript).toContain("Baseline run IDs");
     expect(html).not.toContain("Billing");
-    expect(html).not.toContain("Organization");
+    expect(javascript).not.toContain("Sign in");
   });
 
   it("keeps local mode login-free and gates opt-in self-hosted mode", async () => {

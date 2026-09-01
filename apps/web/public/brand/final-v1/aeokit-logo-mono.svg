@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 96" role="img" aria-labelledby="title desc">
+  <title id="title">aeokit monochrome</title>
+  <desc id="desc">The aeokit wordmark in one color.</desc>
+  <defs>
+    <mask id="open-joint" maskUnits="userSpaceOnUse" x="16" y="16" width="64" height="64">
+      <rect x="16" y="16" width="64" height="64" fill="white"/>
+      <circle cx="38" cy="48" r="5" fill="black"/>
+    </mask>
+  </defs>
+  <g mask="url(#open-joint)" fill="none" stroke="#111318" stroke-linecap="round" stroke-width="10">
+    <path d="M31 24V72"/>
+    <path d="M40 45.5L63 25"/>
+    <path d="M40 50.5L63 71"/>
+  </g>
+  <text x="91" y="66" fill="#111318" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="52" font-weight="650" letter-spacing="-2.6">aeokit</text>
+</svg>

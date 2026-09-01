@@ -9,8 +9,7 @@ import {
   createAeokitMcpHttpHandler,
   type OpenApiDocument,
 } from "@aeokit/cli/mcp";
-import { localConsoleHtml } from "./local-ui";
-import { experimentsConsoleHtml } from "./experiments-ui";
+import { serveProductUi } from "./web-ui";
 
 export type RuntimeAuthConfig =
   { mode: "none" } | { mode: "api-key"; keyHashes: readonly string[] };
@@ -90,10 +89,8 @@ export function createRuntimeApp(options: { auth?: RuntimeAuthConfig } = {}) {
     context.json(createOpenApiDocument(app.routes)),
   );
   app.get("/docs", (context) => context.html(apiReferenceHtml()));
-  app.get("/app", (context) => context.html(localConsoleHtml()));
-  app.get("/app/projects/:projectId/experiments", (context) =>
-    context.html(experimentsConsoleHtml(context.req.param("projectId"))),
-  );
+  app.get("/app", serveProductUi);
+  app.get("/app/*", serveProductUi);
   app.get("/", (context) =>
     context.json({
       name: "aeokit",

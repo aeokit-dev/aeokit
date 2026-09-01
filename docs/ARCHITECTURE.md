@@ -1,6 +1,6 @@
 # Architecture
 
-Aeokit is a headless runtime with portable domain logic and a PostgreSQL-backed
+Aeokit is a UI-optional runtime with a complete bundled dashboard, portable domain logic, and a PostgreSQL-backed
 local/self-hosted adapter.
 
 ## Components
