@@ -3,9 +3,13 @@ import { describe, expect, it } from "vitest";
 
 const root = new URL("../", import.meta.url);
 
-describe("headless runtime repository boundary", () => {
-  it("does not contain hosted UI or Cloudflare deployment applications", () => {
-    expect(existsSync(new URL("apps/web/package.json", root))).toBe(false);
+describe("UI-optional runtime repository boundary", () => {
+  it("contains the public product UI without hosted identity or Cloudflare deployment", () => {
+    const webManifest = JSON.parse(
+      readFileSync(new URL("apps/web/package.json", root), "utf8"),
+    ) as { dependencies: Record<string, string> };
+    expect(existsSync(new URL("apps/web/package.json", root))).toBe(true);
+    expect(webManifest.dependencies).not.toHaveProperty("@clerk/react");
     expect(existsSync(new URL("apps/cloudflare/package.json", root))).toBe(
       false,
     );

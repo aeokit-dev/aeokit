@@ -1,9 +1,10 @@
 # Aeokit
 
-Aeokit is the open-source, headless runtime for answer-engine optimization.
+Aeokit is the open-source runtime and product UI for answer-engine optimization.
 It stores auditable AI answers, citations, mentions, competitors, visibility
 metrics, and opportunities behind a JSON API that can be used by apps, agents,
-CLI tools, MCP clients, and integrations.
+CLI tools, MCP clients, and integrations. The complete dashboard is bundled
+with the same runtime and remains optional for agent-only deployments.
 
 ## Why answer-engine optimization is different
 
@@ -50,8 +51,8 @@ docker compose -p openaeo up -d --build app worker
 
 Then open or query:
 
-- Local runtime console: <http://127.0.0.1:3000/app>
-- Project experiments: `http://127.0.0.1:3000/app/projects/<project-id>/experiments`
+- Full local product UI: <http://127.0.0.1:3000/app>
+- Project experiments: `http://127.0.0.1:3000/app/brands/<project-id>/experiments`
 - Runtime metadata: <http://127.0.0.1:3000/>
 - Interactive API docs: <http://127.0.0.1:3000/docs>
 - OpenAPI 3.1: <http://127.0.0.1:3000/openapi.json>
@@ -89,8 +90,9 @@ pnpm db:migrate
 pnpm dev
 ```
 
-`pnpm dev` starts the API and background worker. The API listens on port 8787
-unless `API_PORT` overrides it.
+`pnpm dev` starts the API and background worker. Build the UI with
+`pnpm --filter @aeokit/product-ui build`; the API serves it at `/app`. The API
+listens on port 8787 unless `API_PORT` overrides it.
 
 ## CLI, MCP, and API-key mode
 
@@ -161,16 +163,18 @@ existing data does not initiate a provider run by itself.
 
 The portable repository contains:
 
-- `apps/api` — headless Hono HTTP runtime and OpenAPI documentation
+- `apps/api` — Hono HTTP runtime, UI delivery, and OpenAPI documentation
+- `apps/web` — complete self-hosted dashboard and reusable product application
 - `apps/worker` — PostgreSQL/pg-boss background execution and scheduling
 - `packages/core` — provider-neutral analysis and domain logic
 - `packages/db` — PostgreSQL schema and migrations
 - `packages/cloudflare-analytics` — portable Cloudflare crawler analytics client
 
-Hosted account login, API-key minting, multitenancy, billing, hosted UI, and
-Cloudflare deployment adapters live in the private `aeokit-cloud` control
-plane. A hosted client authenticates with a bearer API key; local mode remains
-login-free.
+Hosted account login, API-key minting, multitenancy, billing, and Cloudflare
+deployment adapters live in the private `aeokit-cloud` control plane. Cloud
+wraps the public product application with those hosted capabilities; it does
+not own a separate product dashboard. Local mode remains login-free, and the
+API, CLI, and MCP interfaces continue to work without opening the UI.
 
 See [Architecture](docs/ARCHITECTURE.md), [Security](SECURITY.md), and
 [Contributing](CONTRIBUTING.md). The [agent optimization workflow](docs/AGENT_OPTIMIZATION_WORKFLOW.md)
