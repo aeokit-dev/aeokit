@@ -7,13 +7,24 @@
     "aeokit": "./dist/index.js"
   },
   "exports": {
-    ".": {
-      "types": "./dist/client.d.ts",
-      "import": "./dist/client.js"
-    },
-    "./mcp": {
-      "types": "./dist/mcp.d.ts",
-      "import": "./dist/mcp.js"
+    ".": "./src/client.ts",
+    "./mcp": "./src/mcp.ts",
+    "./api-tools": "./src/api-tools.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/client.d.ts",
+        "import": "./dist/client.js"
+      },
+      "./mcp": {
+        "types": "./dist/mcp.d.ts",
+        "import": "./dist/mcp.js"
+      },
+      "./api-tools": {
+        "types": "./dist/api-tools.d.ts",
+        "import": "./dist/api-tools.js"
+      }
     }
   },
   "files": [

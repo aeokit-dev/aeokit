@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@aeokit/cli": "workspace:*",
     "@aeokit/auth": "workspace:*",
     "@hono/node-server": "^1.19.1",
     "@hono/zod-validator": "^0.7.6",

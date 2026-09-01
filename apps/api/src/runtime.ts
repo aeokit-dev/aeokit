@@ -4,6 +4,11 @@ import { logger } from "hono/logger";
 import { apiReferenceHtml, createOpenApiDocument } from "./openapi";
 import { createApiRoutes } from "./routes";
 import { bearerToken, verifyApiKey } from "@aeokit/auth";
+import { AeokitApiError, type AeokitClient } from "@aeokit/cli";
+import {
+  createAeokitMcpHttpHandler,
+  type OpenApiDocument,
+} from "@aeokit/cli/mcp";
 
 export type RuntimeAuthConfig =
   { mode: "none" } | { mode: "api-key"; keyHashes: readonly string[] };
@@ -29,7 +34,13 @@ export function createRuntimeApp(options: { auth?: RuntimeAuthConfig } = {}) {
     cors({
       origin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
       allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization"],
+      allowHeaders: [
+        "Content-Type",
+        "Authorization",
+        "MCP-Protocol-Version",
+        "MCP-Session-Id",
+        "Last-Event-ID",
+      ],
     }),
   );
   app.use("/api/*", async (context, next) => {
@@ -43,6 +54,36 @@ export function createRuntimeApp(options: { auth?: RuntimeAuthConfig } = {}) {
     return next();
   });
   app.route("/api", createApiRoutes());
+  const mcp = createAeokitMcpHttpHandler(async (request) => ({
+    document: createOpenApiDocument(app.routes) as OpenApiDocument,
+    client: {
+      async request<T>(path: string, init: RequestInit = {}): Promise<T> {
+        const headers = new Headers(init.headers);
+        headers.set("Accept", "application/json");
+        if (init.body) headers.set("Content-Type", "application/json");
+        const authorization = request.headers.get("Authorization");
+        if (authorization) headers.set("Authorization", authorization);
+        const response = await app.request(new URL(path, request.url), {
+          ...init,
+          headers,
+        });
+        const payload = (await response.json().catch(() => null)) as Record<
+          string,
+          unknown
+        > | null;
+        if (!response.ok) {
+          throw new AeokitApiError(
+            typeof payload?.error === "string"
+              ? payload.error
+              : `Aeokit request failed (${response.status})`,
+            response.status,
+          );
+        }
+        return payload as T;
+      },
+    } satisfies Pick<AeokitClient, "request">,
+  }));
+  app.all("/api/mcp", (context) => mcp.fetch(context.req.raw));
   app.get("/openapi.json", (context) =>
     context.json(createOpenApiDocument(app.routes)),
   );
@@ -55,6 +96,7 @@ export function createRuntimeApp(options: { auth?: RuntimeAuthConfig } = {}) {
       api: "/api",
       docs: "/docs",
       openapi: "/openapi.json",
+      mcp: "/api/mcp",
     }),
   );
   app.notFound((context) => context.json({ error: "Not found" }, 404));

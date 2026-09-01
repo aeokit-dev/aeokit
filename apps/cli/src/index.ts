@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { AeokitClient } from "./client.js";
 import { serveAeokitMcp } from "./mcp.js";
+import { executeApiTool, loadApiTools } from "./api-tools.js";
 import { apiKeyPrefix, generateApiKey, hashApiKey } from "@aeokit/auth";
 
 function usage(): never {
@@ -8,6 +9,8 @@ function usage(): never {
   aeokit health [--url URL] [--api-key KEY]
   aeokit projects [--url URL] [--api-key KEY]
   aeokit openapi [--url URL] [--api-key KEY]
+  aeokit tools [--url URL] [--api-key KEY]
+  aeokit tool NAME [--data JSON] [--url URL] [--api-key KEY]
   aeokit request PATH [--method METHOD] [--data JSON] [--url URL] [--api-key KEY]
   aeokit key create
   aeokit mcp
@@ -44,6 +47,54 @@ async function main() {
     baseUrl: option(args, "--url") ?? process.env.AEOKIT_URL,
     apiKey: option(args, "--api-key") ?? process.env.AEOKIT_API_KEY,
   });
+  if (command === "tools") {
+    const tools = await loadApiTools(client);
+    console.log(
+      JSON.stringify(
+        tools.map(
+          ({
+            name,
+            operationId,
+            method,
+            path,
+            description,
+            classification,
+          }) => ({
+            name,
+            operationId,
+            method,
+            path,
+            description,
+            classification,
+          }),
+        ),
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+  if (command === "tool") {
+    const name = args[1] ?? usage();
+    const data = option(args, "--data") ?? "{}";
+    let input: unknown;
+    try {
+      input = JSON.parse(data);
+    } catch {
+      throw new Error("--data must be valid JSON");
+    }
+    if (!input || typeof input !== "object" || Array.isArray(input)) {
+      throw new Error("--data must be a JSON object");
+    }
+    console.log(
+      JSON.stringify(
+        await executeApiTool(client, name, input as Record<string, unknown>),
+        null,
+        2,
+      ),
+    );
+    return;
+  }
   let path: string;
   let init: RequestInit = {};
   if (command === "health") path = "/api/health";

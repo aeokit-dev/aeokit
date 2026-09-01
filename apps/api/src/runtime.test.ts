@@ -2,6 +2,19 @@ import { describe, expect, it } from "vitest";
 import { createRuntimeApp } from "./runtime";
 import { generateApiKey, hashApiKey } from "@aeokit/auth";
 
+async function mcpPayload(response: Response) {
+  const text = await response.text();
+  if (response.headers.get("content-type")?.includes("text/event-stream")) {
+    const data = text
+      .split("\n")
+      .find((line) => line.startsWith("data: "))
+      ?.slice(6);
+    if (!data) throw new Error("MCP SSE response did not contain a data event");
+    return JSON.parse(data) as unknown;
+  }
+  return JSON.parse(text) as unknown;
+}
+
 describe("headless runtime", () => {
   it("exposes runtime metadata as JSON instead of serving a web UI", async () => {
     const response = await createRuntimeApp().request("http://localhost/");
@@ -15,6 +28,7 @@ describe("headless runtime", () => {
       api: "/api",
       docs: "/docs",
       openapi: "/openapi.json",
+      mcp: "/api/mcp",
     });
   });
 
@@ -51,5 +65,97 @@ describe("headless runtime", () => {
       { headers: { Authorization: `Bearer ${key}` } },
     );
     expect(authenticated.status).toBe(404);
+  });
+
+  it("serves MCP Streamable HTTP through the existing bearer boundary", async () => {
+    const key = generateApiKey();
+    const app = createRuntimeApp({
+      auth: { mode: "api-key", keyHashes: [await hashApiKey(key)] },
+    });
+    const initialize = JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "aeokit-agent-test", version: "0.1.0" },
+      },
+    });
+    const headers = {
+      Accept: "application/json, text/event-stream",
+      "Content-Type": "application/json",
+    };
+
+    const missing = await app.request("http://localhost/api/mcp", {
+      method: "POST",
+      headers,
+      body: initialize,
+    });
+    expect(missing.status).toBe(401);
+
+    const authenticated = await app.request("http://localhost/api/mcp", {
+      method: "POST",
+      headers: { ...headers, Authorization: `Bearer ${key}` },
+      body: initialize,
+    });
+    expect(authenticated.status).toBe(200);
+    await expect(mcpPayload(authenticated)).resolves.toMatchObject({
+      jsonrpc: "2.0",
+      id: 1,
+      result: {
+        protocolVersion: "2025-06-18",
+        serverInfo: { name: "aeokit", version: "0.1.0" },
+      },
+    });
+
+    const listed = await app.request("http://localhost/api/mcp", {
+      method: "POST",
+      headers: {
+        ...headers,
+        Authorization: `Bearer ${key}`,
+        "MCP-Protocol-Version": "2025-06-18",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 2,
+        method: "tools/list",
+        params: {},
+      }),
+    });
+    expect(listed.status).toBe(200);
+    const listedPayload = (await mcpPayload(listed)) as {
+      result: { tools: Array<{ name: string }> };
+    };
+    expect(listedPayload.result.tools.map((tool) => tool.name)).toEqual(
+      expect.arrayContaining([
+        "aeokit_health",
+        "aeokit_list_projects",
+        "aeokit_get",
+        "aeokit_getHealth",
+      ]),
+    );
+
+    const called = await app.request("http://localhost/api/mcp", {
+      method: "POST",
+      headers: {
+        ...headers,
+        Authorization: `Bearer ${key}`,
+        "MCP-Protocol-Version": "2025-06-18",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 3,
+        method: "tools/call",
+        params: { name: "aeokit_health", arguments: {} },
+      }),
+    });
+    expect(called.status).toBe(200);
+    await expect(mcpPayload(called)).resolves.toMatchObject({
+      id: 3,
+      result: {
+        structuredContent: { ok: true, service: "aeokit-runtime" },
+      },
+    });
   });
 });

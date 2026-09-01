@@ -40,6 +40,9 @@ importers:
       "@aeokit/auth":
         specifier: workspace:*
         version: link:../../packages/auth
+      "@aeokit/cli":
+        specifier: workspace:*
+        version: link:../cli
       "@aeokit/cloudflare-analytics":
         specifier: workspace:*
         version: link:../../packages/cloudflare-analytics
