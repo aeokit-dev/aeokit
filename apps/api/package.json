@@ -20,7 +20,7 @@
     "@aeokit/core": "workspace:*",
     "@aeokit/db": "workspace:*",
     "drizzle-orm": "^0.45.2",
-    "hono": "^4.12.25",
+    "hono": "^4.13.7",
     "pg-boss": "^12.27.0",
     "zod": "^4.1.12"
   },
